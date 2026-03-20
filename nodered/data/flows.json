@@ -1,0 +1,28 @@
+[
+    {
+        "id": "ac2d25528dca2e2a",
+        "type": "tab",
+        "label": "Flow 1",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "b6a3226a59ce3f3d",
+        "type": "function",
+        "z": "ac2d25528dca2e2a",
+        "name": "function 1",
+        "func": "\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 640,
+        "y": 140,
+        "wires": [
+            []
+        ]
+    }
+]
