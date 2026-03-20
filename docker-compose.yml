@@ -1,19 +1,15 @@
 version: '3.8'
 
 services:
-  nodered:
+  client:
     build:
-      context: ./nodered
-    container_name: nodered
-    ports:
-      - "1880:1880"
-    volumes:
-      - ./nodered/data:/data
+      context: ./client
+    container_name: client
     restart: unless-stopped
 
-  influxdb:
+  database:
     image: influxdb:3.8.3-core
-    container_name: influxdb
+    container_name: database
     ports:
       - "8086:8086"
     environment:
@@ -21,22 +17,21 @@ services:
       - INFLUXDB_ADMIN_PASSWORD=admin123
       - INFLUXDB_DB=robot
     volumes:
-      - influxdb_data:/var/lib/influxdb2
+      - database_data:/var/lib/influxdb2
     restart: unless-stopped
 
-  grafana:
+  hmi:
     image: grafana/grafana:13.0.0-23336907879-ubuntu
-    container_name: grafana
+    container_name: hmi
     ports:
       - "3000:3000"
     environment:
       - GF_SECURITY_ADMIN_USER=admin
       - GF_SECURITY_ADMIN_PASSWORD=admin123
     volumes:
-      - grafana_data:/var/lib/grafana
+      - hmi_data:/var/lib/grafana
     restart: unless-stopped
 
 volumes:
-  nodered_data:
-  influxdb_data:
-  grafana_data:
+  database_data:
+  hmi_data:
