@@ -1,0 +1,3 @@
+nodered_data/.config*
+nodered_data/lib
+nodered_data/node_modules
