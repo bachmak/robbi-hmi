@@ -1,3 +1,4 @@
-nodered_data/.config*
-nodered_data/lib
-nodered_data/node_modules
+nodered_data/*
+!nodered_data/package.json
+!nodered_data/package-lock.json
+!nodered_data/settings.js
