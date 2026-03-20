@@ -2,12 +2,13 @@ version: '3.8'
 
 services:
   nodered:
-    image: nodered/node-red:4.1-debian
+    build:
+      context: ./nodered
     container_name: nodered
     ports:
       - "1880:1880"
     volumes:
-      - ./nodered_data:/data
+      - ./nodered/data:/data
     restart: unless-stopped
 
   influxdb:

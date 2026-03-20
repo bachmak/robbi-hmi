@@ -1,4 +1,3 @@
-nodered_data/*
-!nodered_data/package.json
-!nodered_data/package-lock.json
-!nodered_data/settings.js
+.vscode
+
+nodered/data/.config*
