@@ -5,7 +5,12 @@ services:
     build:
       context: ./client
     container_name: client
-    restart: unless-stopped
+    volumes:
+      - ./client/src:/app
+    ports:
+      - "4840:4840"
+    environment:
+      - PLC_IP=172.18.24.235
 
   database:
     image: influxdb:3.8.3-core
