@@ -8,13 +8,12 @@ def _get_from_env(var_name):
         raise RuntimeError(f"Environment varialbe {var_name} not set.")
 
 
-def get_db_url(): return _get_from_env("DB_URL")
+class db:
+    def url(): return _get_from_env("DB_URL")
+    def token(): return _get_from_env("DB_TOKEN")
+    def org(): return _get_from_env("DB_ORG")
+    def bucket_robot(): return _get_from_env("DB_BUCKET_ROBOT")
 
 
-def get_db_token(): return _get_from_env("DB_TOKEN")
-
-
-def get_db_org(): return _get_from_env("DB_ORG")
-
-
-def get_opc_ua_url(): return _get_from_env("OPC_UA_URL")
+class opc_ua:
+    def url(): return _get_from_env("OPC_UA_URL")
