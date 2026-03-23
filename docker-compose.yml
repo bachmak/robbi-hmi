@@ -5,23 +5,27 @@ services:
     build:
       context: ./client
     container_name: client
+    depends_on:
+      - database
     volumes:
       - ./client/src:/app
     environment:
       - PLC_IP=172.18.24.235
+      - DB_URL=http://database:8086
+      - DB_TOKEN=xwdTwb5gehsOueSzD5YIKzBzzGscNszi6PNq62Cc-S5tva0_8JH3gzvdJm2jpCdoGBhQ_mleP5zuVxvT4gItqw==
+      - DB_ORG=ff
 
   database:
     image: influxdb:2.8.0
     container_name: database
     ports:
       - "8086:8086"
+    volumes:
+      - database_data:/var/lib/influxdb2
     environment:
       - INFLUXDB_ADMIN_USER=admin
       - INFLUXDB_ADMIN_PASSWORD=admin123
       - INFLUXDB_DB=robot
-    volumes:
-      - database_data:/var/lib/influxdb2
-    restart: unless-stopped
 
   hmi:
     image: grafana/grafana:13.0.0-23336907879-ubuntu
