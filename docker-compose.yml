@@ -4,7 +4,6 @@ services:
   client:
     build:
       context: ./client
-    container_name: client
     depends_on:
       - database
     volumes:
@@ -17,7 +16,6 @@ services:
 
   database:
     image: influxdb:2.8.0
-    container_name: database
     ports:
       - "8086:8086"
     volumes:
@@ -29,7 +27,6 @@ services:
 
   hmi:
     image: grafana/grafana:13.0.0-23336907879-ubuntu
-    container_name: hmi
     ports:
       - "3000:3000"
     environment:
