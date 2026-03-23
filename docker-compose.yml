@@ -11,7 +11,7 @@ services:
       - PLC_IP=172.18.24.235
 
   database:
-    image: influxdb:3.8.3-core
+    image: influxdb:2.8.0
     container_name: database
     ports:
       - "8086:8086"
