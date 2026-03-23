@@ -15,3 +15,6 @@ def get_db_token(): return _get_from_env("DB_TOKEN")
 
 
 def get_db_org(): return _get_from_env("DB_ORG")
+
+
+def get_opc_ua_url(): return _get_from_env("OPC_UA_URL")

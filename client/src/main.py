@@ -10,11 +10,6 @@ class SubHandler:
         print(f"Value changed: {node} = {val}")
 
 
-def get_url():
-    ip = os.environ.get("PLC_IP", "127.0.0.1")
-    return f"opc.tcp://{ip}:4840"
-
-
 async def client_session(client):
     print("Connected to OPC UA Server")
 
@@ -24,7 +19,7 @@ async def client_session(client):
 
 async def main():
     print("Connecting to OPC UA Server...")
-    url = get_url()
+    url = config.get_opc_ua_url()
 
     try:
         async with Client(url=url) as client:

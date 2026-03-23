@@ -10,7 +10,7 @@ services:
     volumes:
       - ./client/src:/app
     environment:
-      - PLC_IP=172.18.24.235
+      - OPC_UA_URL=opc.tcp://172.18.24.235:4840
       - DB_URL=http://database:8086
       - DB_TOKEN=xwdTwb5gehsOueSzD5YIKzBzzGscNszi6PNq62Cc-S5tva0_8JH3gzvdJm2jpCdoGBhQ_mleP5zuVxvT4gItqw==
       - DB_ORG=ff
