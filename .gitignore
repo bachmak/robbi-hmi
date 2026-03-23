@@ -1,3 +1,2 @@
 .vscode
-
-nodered/data/.*
+__pycache__
