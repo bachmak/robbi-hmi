@@ -40,16 +40,28 @@ services:
       retries: 10
 
   hmi:
-    image: grafana/grafana:13.0.0-23336907879-ubuntu
+    build:
+      context: ./hmi
+    depends_on:
+      database:
+        condition: service_healthy
     ports:
       - "3000:3000"
     environment:
-      - GF_SECURITY_ADMIN_USER=admin
-      - GF_SECURITY_ADMIN_PASSWORD=admin123
+      - GF_SECURITY_ADMIN_USER=dummy-user
+      - GF_SECURITY_ADMIN_PASSWORD=dummy-pswd-1234
+      - DB_URL=${DB_URL}
+      - DB_TOKEN=${DB_TOKEN}
+      - DB_ORG=${DB_ORG}
+      - DB_BUCKET_INIT=${DB_BUCKET_INIT}
+    entrypoint: >
+      /bin/sh -c "envsubst < /etc/grafana/provisioning/datasources/datasource.yml.template > /etc/grafana/provisioning/datasources/datasource.yml && /run.sh"
     volumes:
-      - hmi_data:/var/lib/grafana
+      # substitute environment variables into datasources
+      - ./hmi/grafana/provisioning:/etc/grafana/provisioning
+      - ./hmi/grafana/dashboards:/var/lib/grafana/dashboards
+
     restart: unless-stopped
 
 volumes:
   database_data:
-  hmi_data:

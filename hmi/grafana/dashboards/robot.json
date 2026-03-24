@@ -1,0 +1,22 @@
+{
+    "title": "Robot Dashboard",
+    "panels": [
+        {
+            "type": "timeseries",
+            "title": "Temperature",
+            "targets": [
+                {
+                    "query": "from(bucket: \"robot\") |> range(start: -5m) |> filter(fn: (r) => r._measurement == \"test-measurement\") |> filter(fn: (r) => r.sensor == \"temperature\") |> filter(fn: (r) => r._field == \"value\")"
+                }
+            ],
+            "gridPos": {
+                "x": 0,
+                "y": 0,
+                "w": 12,
+                "h": 8
+            }
+        }
+    ],
+    "schemaVersion": 38,
+    "version": 1
+}
