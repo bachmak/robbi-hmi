@@ -17,3 +17,4 @@ class db:
 
 class opc_ua:
     def url(): return _get_from_env("OPC_UA_URL")
+    def url_fallback(): return _get_from_env("OPC_UA_URL_FALLBACK")
