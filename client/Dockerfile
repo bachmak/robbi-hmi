@@ -1,4 +1,5 @@
-FROM python:3.14-slim
+# the latest version supported by the asyncua library
+FROM python:3.10-slim
 
 WORKDIR /app
 
