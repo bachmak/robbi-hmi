@@ -2,6 +2,7 @@ from asyncua import Client
 from contextlib import asynccontextmanager
 from config import opc_ua as cfg
 import asyncio
+import opc_ua_nodes
 
 
 @asynccontextmanager
@@ -29,7 +30,13 @@ async def _get_connected_client(urls):
             print("Disconnected from OPC UA server")
 
 
-async def session():
+class SubscriptionHandler:
+    def datachange_notification(self, node, val, data):
+        ts = data.monitored_item.Value.SourceTimestamp
+        print(f"Value changed: {node} = {val}, ts = {ts}")
+
+
+async def session(queue: asyncio.Queue):
     print("Connecting to OPC UA Server...")
 
     async with _get_connected_client([
@@ -39,6 +46,19 @@ async def session():
 
         print("Connected to OPC UA Server")
 
+        handler = SubscriptionHandler()
+        subs = await client.create_subscription(
+            500,
+            handler,
+        )
+
+        nodes = [
+            client.get_node(node_name)
+            for node_name in opc_ua_nodes.get_node_names_to_subscribe()
+        ]
+
+        await subs.subscribe_data_change(nodes)
+
         while True:
             print("OPC UA: alive")
-            await asyncio.sleep(1)
+            await asyncio.Event().wait()

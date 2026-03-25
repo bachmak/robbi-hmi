@@ -7,7 +7,7 @@ import time
 import random
 
 
-async def session():
+async def session(queue: asyncio.Queue):
     async with InfluxDBClientAsync(
         url=cfg.url(),
         token=cfg.token(),

@@ -12,9 +12,11 @@ from handlers import router
 async def lifespan(app: FastAPI):
     print("Starting background tasks...")
 
+    queue = asyncio.Queue()
+
     tasks = [
-        asyncio.create_task(db_client.session()),
-        asyncio.create_task(opc_ua_client.session()),
+        asyncio.create_task(db_client.session(queue)),
+        asyncio.create_task(opc_ua_client.session(queue)),
     ]
 
     yield
