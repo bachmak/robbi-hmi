@@ -21,6 +21,10 @@
     "links": [],
     "panels": [
         {
+            "datasource": {
+                "type": "influxdb",
+                "uid": "P951FEA4DE68E13C5"
+            },
             "fieldConfig": {
                 "defaults": {
                     "color": {
@@ -33,6 +37,7 @@
                         "axisLabel": "",
                         "axisPlacement": "auto",
                         "barAlignment": 0,
+                        "barWidthFactor": 0.6,
                         "drawStyle": "line",
                         "fillOpacity": 0,
                         "gradientMode": "none",
@@ -43,12 +48,16 @@
                         },
                         "insertNulls": false,
                         "lineInterpolation": "linear",
+                        "lineStyle": {
+                            "fill": "solid"
+                        },
                         "lineWidth": 1,
                         "pointSize": 5,
                         "scaleDistribution": {
                             "type": "linear"
                         },
                         "showPoints": "auto",
+                        "showValues": false,
                         "spanNulls": false,
                         "stacking": {
                             "group": "A",
@@ -64,7 +73,7 @@
                         "steps": [
                             {
                                 "color": "green",
-                                "value": null
+                                "value": 0
                             },
                             {
                                 "color": "red",
@@ -76,13 +85,17 @@
                 "overrides": []
             },
             "gridPos": {
-                "h": 8,
-                "w": 24,
+                "h": 12,
+                "w": 15,
                 "x": 0,
                 "y": 0
             },
             "id": 1,
             "options": {
+                "annotations": {
+                    "clustering": -1,
+                    "multiLane": false
+                },
                 "legend": {
                     "calcs": [],
                     "displayMode": "list",
@@ -90,18 +103,23 @@
                     "showLegend": true
                 },
                 "tooltip": {
-                    "maxHeight": 600,
+                    "hideZeros": false,
                     "mode": "single",
                     "sort": "none"
                 }
             },
+            "pluginVersion": "13.0.0-23466975118",
             "targets": [
                 {
-                    "query": "from(bucket: \"robot\") |> range(start: -5m) |> filter(fn: (r) => r._measurement == \"test-measurement\") |> filter(fn: (r) => r.sensor == \"temperature\") |> filter(fn: (r) => r._field == \"value\")",
+                    "datasource": {
+                        "type": "influxdb",
+                        "uid": "P951FEA4DE68E13C5"
+                    },
+                    "query": "from(bucket: \"robot\")\r\n|> range(start: -5m)\r\n|> filter(fn: (r) => r._measurement == \"test-measurement\")\r\n|> filter(fn: (r) => r.sensor == \"temperature\")\r\n|> filter(fn: (r) => r._field == \"value\")",
                     "refId": "A"
                 }
             ],
-            "title": "Temperature",
+            "title": "Speed",
             "type": "timeseries"
         },
         {
@@ -109,21 +127,17 @@
                 "type": "influxdb",
                 "uid": "P951FEA4DE68E13C5"
             },
-            "description": "",
             "gridPos": {
-                "h": 6,
-                "w": 12,
+                "h": 7,
+                "w": 15,
                 "x": 0,
-                "y": 8
+                "y": 12
             },
             "id": 2,
             "options": {
                 "buttonGroup": {
                     "orientation": "center",
                     "size": "md"
-                },
-                "buttons": {
-                    "submit": "Test-Request senden"
                 },
                 "confirmModal": {
                     "body": "Please confirm to update changed values",
@@ -145,15 +159,37 @@
                 "elementValueChanged": "",
                 "elements": [
                     {
-                        "id": "reason",
-                        "title": "Test-Nachricht",
-                        "type": "string",
-                        "uid": "5c8d0301-83d1-4d74-8c33-07344c270628",
-                        "value": "Hallo vom Roboter"
+                        "id": "lin-vel",
+                        "labelWidth": 15,
+                        "max": 100,
+                        "min": -100,
+                        "section": "",
+                        "showIf": "",
+                        "step": 0.5,
+                        "title": "Linear velocity",
+                        "tooltip": "",
+                        "type": "slider",
+                        "uid": "01b98a4d-0121-491a-b1bf-a405678d6508",
+                        "unit": "m/s",
+                        "value": 0
+                    },
+                    {
+                        "id": "ang-vel",
+                        "labelWidth": 15,
+                        "max": 10,
+                        "min": -10,
+                        "section": "",
+                        "step": 0.5,
+                        "title": "Angular velocity",
+                        "tooltip": "",
+                        "type": "slider",
+                        "uid": "64940521-39eb-48fd-a80b-9ea452923d13",
+                        "unit": "d/s",
+                        "value": 0
                     }
                 ],
                 "initial": {
-                    "code": "console.log(context.panel.data, context.panel.response, context.panel.initial, context.panel.elements);\n\nreturn;\n\n/**\n * Data Source\n * Requires form elements to be defined\n */\nconst dataQuery = context.utils.toDataQueryResponse(context.panel.response);\nconsole.log(dataQuery);",
+                    "code": "console.log(context.panel.data, context.panel.response, context.panel.initial, context.panel.elements);\ncontext.panel.enableSubmit();",
                     "contentType": "application/json",
                     "getPayload": "return {}",
                     "highlight": false,
@@ -162,12 +198,9 @@
                     "payload": {},
                     "url": "https://httpbin.org/get"
                 },
-                "initialRequest": {
-                    "method": "none"
-                },
                 "layout": {
                     "orientation": "horizontal",
-                    "padding": 10,
+                    "padding": 0,
                     "sectionVariant": "default",
                     "variant": "single"
                 },
@@ -202,26 +235,32 @@
                     "code": "if (context.panel.response) {\n  context.grafana.notifySuccess(['Update', 'Values updated successfully.']);\n  context.grafana.refresh();\n} else {\n  context.grafana.notifyError(['Update', 'An error occurred updating values.']);\n}",
                     "confirm": false,
                     "contentType": "application/json",
-                    "getPayload": "const payload = {};\ncontext.panel.elements.forEach((element) => {\n  if (!element.value) {\n    return;\n  }\n  payload[element.id] = element.value;\n})\nreturn payload;",
+                    "getPayload": "const el_v = context.panel.elements.find(el => el.id === \"lin-vel\");\nconst el_omega = context.panel.elements.find(el => el.id === \"ang-vel\");\n\n\nv = el_v && el_v.value ? el_v.value : 0.0;\nomega = el_omega && el_omega.value ? el_omega.value : 0.0;\n\nreturn {\n  \"v\": v,\n  \"omega\": omega,\n};",
+                    "header": [],
                     "method": "POST",
-                    "payload": {},
-                    "payloadMode": "all",
-                    "url": "https://httpbin.org/post"
+                    "payload": {
+                        "emergency_stop": false,
+                        "omega": 0.1,
+                        "v": 89.3
+                    },
+                    "payloadMode": "custom",
+                    "url": "http://localhost:5000/command/motion"
                 },
-                "updateCode": "console.log('Antwort vom Server:', context.panel.response); if (context.panel.response) { context.grafana.notifySuccess(['Erfolg', 'Server hat geantwortet']); } else { context.grafana.notifyError(['Fehler', 'Keine Antwort erhalten - Check die Browser-Konsole!']); }",
-                "updateEnabled": "manual",
-                "updateRequest": {
-                    "contentType": "application/json",
-                    "method": "POST",
-                    "url": "https://httpbin.org/post"
-                }
+                "updateEnabled": "manual"
             },
             "pluginVersion": "6.3.1",
-            "title": "Steuerung (Test-Modus)",
+            "targets": [
+                {
+                    "query": "",
+                    "refId": "A"
+                }
+            ],
+            "title": "New panel",
             "type": "volkovlabs-form-panel"
         }
     ],
-    "schemaVersion": 39,
+    "preload": false,
+    "schemaVersion": 42,
     "tags": [],
     "templating": {
         "list": []
@@ -230,11 +269,11 @@
         "from": "now-6h",
         "to": "now"
     },
-    "timeRangeUpdatedDuringEditOrView": false,
     "timepicker": {},
-    "timezone": "",
-    "title": "Robot Dashboard",
-    "uid": "efh0aja2q0lq8c",
-    "version": 1,
-    "weekStart": ""
+    "timezone": "browser",
+    "title": "New dash",
+    "weekStart": "",
+    "version": 6,
+    "uid": "dukxrdp",
+    "id": 1128876832473088
 }
