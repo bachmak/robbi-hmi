@@ -65,8 +65,11 @@ services:
     volumes:
       - ./hmi/grafana/provisioning:/etc/grafana/provisioning
       - ./hmi/grafana/dashboards:/var/lib/grafana/dashboards
+      # TODO: remove
+      - hmi_data:/var/lib/grafana
 
     restart: unless-stopped
 
 volumes:
   database_data:
+  hmi_data:
