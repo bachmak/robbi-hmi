@@ -35,7 +35,6 @@ services:
       - DOCKER_INFLUXDB_INIT_BUCKET=${DB_BUCKET_INIT}
       - DOCKER_INFLUXDB_INIT_ADMIN_TOKEN=${DB_TOKEN}
       - BUCKET_ROBOT=${DB_BUCKET_ROBOT}
-      - BUCKET_MISC=${DB_BUCKET_MISC}
     healthcheck:
       test: [ "CMD", "curl", "-f", "http://localhost:8086/health" ]
       interval: 5s
