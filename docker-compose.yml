@@ -7,6 +7,9 @@ services:
     depends_on:
       database:
         condition: service_healthy
+    ports:
+      # allow for making requests from HMI via browser
+      - "5000:5000"
     volumes:
       - ./backend/src:/app
     environment:
@@ -55,10 +58,11 @@ services:
       - DB_ORG=${DB_ORG}
       - DB_BUCKET_INIT=${DB_BUCKET_INIT}
       - GF_INSTALL_PLUGINS=volkovlabs-form-panel
+
+    # substitute environment variables into datasources
     entrypoint: >
       /bin/sh -c "envsubst < /etc/grafana/provisioning/datasources/datasource.yml.template > /etc/grafana/provisioning/datasources/datasource.yml && /run.sh"
     volumes:
-      # substitute environment variables into datasources
       - ./hmi/grafana/provisioning:/etc/grafana/provisioning
       - ./hmi/grafana/dashboards:/var/lib/grafana/dashboards
 

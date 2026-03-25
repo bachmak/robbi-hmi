@@ -4,9 +4,12 @@ import time
 import math
 from fastapi import FastAPI
 from influxdb_client.client.influxdb_client_async import InfluxDBClientAsync
+from fastapi.middleware.cors import CORSMiddleware
 from influxdb_client import Point
 from client.client import get_connected_client
 from contextlib import asynccontextmanager
+from pydantic import BaseModel
+from typing import Optional
 
 
 async def db_session():
@@ -67,3 +70,24 @@ async def lifespan(app: FastAPI):
     await asyncio.gather(*tasks, return_exceptions=True)
 
 app = FastAPI(lifespan=lifespan)
+
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=False,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+
+class MotionCommand(BaseModel):
+    v: float
+    omega: float
+    emergency_stop: Optional[bool] = False
+
+
+@app.post("/command/motion")
+async def set_motion(cmd: MotionCommand):
+    print(f"v={cmd.v}, omega={cmd.omega}, stop={cmd.emergency_stop}")
+    return {"status": "ok"}
