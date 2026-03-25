@@ -2,7 +2,7 @@ from asyncua import Client
 from contextlib import asynccontextmanager
 from config import opc_ua as cfg
 import asyncio
-import opc_ua_nodes
+import node_cfg
 
 
 @asynccontextmanager
@@ -54,7 +54,7 @@ async def session(queue: asyncio.Queue):
 
         nodes = [
             client.get_node(node_name)
-            for node_name in opc_ua_nodes.get_node_names_to_subscribe()
+            for node_name in node_cfg.get_node_names_to_subscribe()
         ]
 
         await subs.subscribe_data_change(nodes)

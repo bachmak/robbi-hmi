@@ -3,8 +3,8 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 
-import db_client
-import opc_ua_client
+from db_client import session as db_session
+from opc_ua.client import session as opc_ua_session
 from handlers import router
 
 
@@ -15,8 +15,8 @@ async def lifespan(app: FastAPI):
     queue = asyncio.Queue()
 
     tasks = [
-        asyncio.create_task(db_client.session(queue)),
-        asyncio.create_task(opc_ua_client.session(queue)),
+        asyncio.create_task(db_session(queue)),
+        asyncio.create_task(opc_ua_session(queue)),
     ]
 
     yield
