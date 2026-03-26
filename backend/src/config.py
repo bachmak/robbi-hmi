@@ -21,7 +21,6 @@ class opc_ua:
 
 
 class robot:
-    # Wheel parameters (meters)
-    def left_wheel_radius(): return 0.05  # 50mm wheel
-    def right_wheel_radius(): return 0.05  # 50mm wheel
-    def wheelbase(): return 0.15  # Distance between wheels (150mm)
+    def left_wheel_radius(): return 0.05
+    def right_wheel_radius(): return 0.05
+    def wheelbase(): return 0.15
