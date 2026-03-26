@@ -4,6 +4,7 @@ from config import opc_ua as cfg
 import asyncio
 from . import node_cfg
 import node_data
+import datetime
 
 
 @asynccontextmanager
@@ -43,6 +44,31 @@ class SubscriptionHandler:
             ts=ts,
         )
         asyncio.create_task(self.queue.put(nd))
+
+
+async def _poll_node_values(client: Client, nodes, queue: asyncio.Queue):
+    poll_interval = cfg.poll_interval()
+
+    while True:
+        try:
+            values = await client.read_values(nodes)
+            ts = datetime.datetime.now(datetime.timezone.utc)
+
+            for node, val in zip(nodes, values):
+                try:
+                    nd = node_data.NodeData(
+                        info=node_cfg.get_node_meta_data(node),
+                        value=val,
+                        ts=ts,
+                    )
+                    await queue.put(nd)
+                except Exception as e:
+                    print(f"Error processing node {node.nodeid}: {e}")
+
+            await asyncio.sleep(poll_interval)
+        except Exception as e:
+            print(f"Error in node polling task: {e}")
+            await asyncio.sleep(poll_interval)
 
 
 async def handle_commands(incoming_commands: asyncio.Queue, client: Client):
@@ -106,7 +132,10 @@ async def session(incoming_commands: asyncio.Queue, outgoing_commands: asyncio.Q
 
         await subs.subscribe_data_change(nodes)
 
-        command_task = asyncio.create_task(
+        asyncio.create_task(
             handle_commands(incoming_commands, client)
+        )
+        asyncio.create_task(
+            _poll_node_values(client, nodes, outgoing_commands)
         )
         await asyncio.Event().wait()

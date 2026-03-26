@@ -18,6 +18,7 @@ class db:
 class opc_ua:
     def url(): return _get_from_env("OPC_UA_URL")
     def url_fallback(): return _get_from_env("OPC_UA_URL_FALLBACK")
+    def poll_interval(): return float(os.environ.get("OPC_UA_POLL_INTERVAL", "10"))
 
 
 class robot:
