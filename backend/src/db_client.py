@@ -5,7 +5,7 @@ import asyncio
 from node_data import NodeData
 
 
-async def session(queue: asyncio.Queue):
+async def session(incoming: asyncio.Queue):
     async with InfluxDBClientAsync(
         url=cfg.url(),
         token=cfg.token(),
@@ -14,7 +14,7 @@ async def session(queue: asyncio.Queue):
         write_api = client.write_api()
 
         while True:
-            nd: NodeData = await queue.get()
+            nd: NodeData = await incoming.get()
 
             record = (
                 Point(nd.info.domain_name)

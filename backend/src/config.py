@@ -18,3 +18,10 @@ class db:
 class opc_ua:
     def url(): return _get_from_env("OPC_UA_URL")
     def url_fallback(): return _get_from_env("OPC_UA_URL_FALLBACK")
+
+
+class robot:
+    # Wheel parameters (meters)
+    def left_wheel_radius(): return 0.05  # 50mm wheel
+    def right_wheel_radius(): return 0.05  # 50mm wheel
+    def wheelbase(): return 0.15  # Distance between wheels (150mm)

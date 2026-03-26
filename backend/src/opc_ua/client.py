@@ -45,7 +45,7 @@ class SubscriptionHandler:
         asyncio.create_task(self.queue.put(nd))
 
 
-async def session(queue: asyncio.Queue):
+async def session(incoming: asyncio.Queue, outgoing: asyncio.Queue):
     print("Connecting to OPC UA Server...")
 
     async with _get_connected_client([
@@ -55,7 +55,7 @@ async def session(queue: asyncio.Queue):
 
         print("Connected to OPC UA Server")
 
-        handler = SubscriptionHandler(queue)
+        handler = SubscriptionHandler(outgoing)
         subs = await client.create_subscription(
             500,
             handler,
@@ -67,4 +67,11 @@ async def session(queue: asyncio.Queue):
         ]
 
         await subs.subscribe_data_change(nodes)
+
+        async def handle_commands():
+            while True:
+                cmd = await incoming.get()
+                print(f"Received command: {cmd}")
+
+        command_task = asyncio.create_task(handle_commands())
         await asyncio.Event().wait()
