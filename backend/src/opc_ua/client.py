@@ -46,29 +46,41 @@ class SubscriptionHandler:
 
 
 async def handle_commands(incoming_commands: asyncio.Queue, client: Client):
+    command_handlers = {
+        "motor": handle_motor_command,
+    }
+
     while True:
         try:
             cmd = await incoming_commands.get()
-            print(f"Received motor command: {cmd}")
+            print(f"Received command: {cmd}")
 
-            builder = node_cfg.NodeWithValueBuilder()
-            node_info_with_values = [
-                builder.left_target_speed(cmd.left_speed),
-                builder.right_target_speed(cmd.right_speed),
-                builder.left_stop(cmd.emergency_stop),
-                builder.right_stop(cmd.emergency_stop),
-            ]
-
-            node_names = [node.name for node in node_info_with_values]
-            nodes = [client.get_node(name) for name in node_names]
-            values_to_write = [
-                ua.DataValue(ua.Variant(n.value, n.variant_type))
-                for n in node_info_with_values
-            ]
-            await client.write_values(nodes, values_to_write)
+            handler = command_handlers.get(cmd.type)
+            if handler:
+                await handler(cmd, client)
+            else:
+                print(f"Unknown command type: {cmd.type}")
 
         except Exception as e:
-            print(f"Error handling motor command: {e}")
+            print(f"Error handling command: {e}")
+
+
+async def handle_motor_command(cmd, client: Client):
+    builder = node_cfg.NodeWithValueBuilder
+    node_info_with_values = [
+        builder.left_target_speed(cmd.left_speed),
+        builder.right_target_speed(cmd.right_speed),
+        builder.left_stop(cmd.emergency_stop),
+        builder.right_stop(cmd.emergency_stop),
+    ]
+
+    node_names = [node.name for node in node_info_with_values]
+    nodes = [client.get_node(name) for name in node_names]
+    values_to_write = [
+        ua.DataValue(ua.Variant(n.value, n.variant_type))
+        for n in node_info_with_values
+    ]
+    await client.write_values(nodes, values_to_write)
 
 
 async def session(incoming_commands: asyncio.Queue, outgoing_commands: asyncio.Queue):

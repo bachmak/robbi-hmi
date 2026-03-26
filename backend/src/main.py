@@ -18,8 +18,8 @@ async def lifespan(app: FastAPI):
     tasks = [
         asyncio.create_task(db_session(app.state.opc_ua_to_db)),
         asyncio.create_task(opc_ua_session(
-            incoming=app.state.handlers_to_opc_ua,
-            outgoing=app.state.opc_ua_to_db,
+            incoming_commands=app.state.handlers_to_opc_ua,
+            outgoing_commands=app.state.opc_ua_to_db,
         )),
     ]
 
