@@ -12,4 +12,11 @@ for bucket in "${BUCKETS[@]}"; do
         --name "$bucket" \
         --org "$ORG" \
         --token "$TOKEN"
+
+    echo "Seeding zero motion_intent values into $bucket ..."
+    influx write \
+        --bucket "$bucket" \
+        --org "$ORG" \
+        --token "$TOKEN" \
+        "motion_intent v=0,omega=0,emergency_stop=false"
 done
