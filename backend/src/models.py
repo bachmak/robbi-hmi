@@ -22,3 +22,9 @@ class MotorCommand(Command):
     left_speed: float
     right_speed: float
     emergency_stop: Optional[bool] = False
+
+
+class MotionIntent(BaseModel):
+    v: float
+    omega: float
+    emergency_stop: Optional[bool] = False
