@@ -21,35 +21,45 @@
     "links": [],
     "panels": [
         {
+            "datasource": {
+                "type": "influxdb",
+                "uid": "P951FEA4DE68E13C5"
+            },
+            "description": "High-level target velocities, regardless of individual wheels",
             "fieldConfig": {
                 "defaults": {
                     "color": {
-                        "mode": "palette-classic"
+                        "mode": "palette-classic-by-name"
                     },
                     "custom": {
                         "axisBorderShow": false,
-                        "axisCenteredZero": false,
+                        "axisCenteredZero": true,
                         "axisColorMode": "text",
                         "axisLabel": "",
                         "axisPlacement": "auto",
                         "barAlignment": 0,
+                        "barWidthFactor": 0.6,
                         "drawStyle": "line",
-                        "fillOpacity": 0,
-                        "gradientMode": "none",
+                        "fillOpacity": 30,
+                        "gradientMode": "opacity",
                         "hideFrom": {
                             "legend": false,
                             "tooltip": false,
                             "viz": false
                         },
                         "insertNulls": false,
-                        "lineInterpolation": "linear",
+                        "lineInterpolation": "smooth",
+                        "lineStyle": {
+                            "fill": "solid"
+                        },
                         "lineWidth": 1,
-                        "pointSize": 5,
+                        "pointSize": 3,
                         "scaleDistribution": {
                             "type": "linear"
                         },
                         "showPoints": "auto",
-                        "spanNulls": false,
+                        "showValues": false,
+                        "spanNulls": true,
                         "stacking": {
                             "group": "A",
                             "mode": "none"
@@ -58,50 +68,86 @@
                             "mode": "off"
                         }
                     },
+                    "displayName": "Linear velocity",
                     "mappings": [],
                     "thresholds": {
                         "mode": "absolute",
                         "steps": [
                             {
                                 "color": "green",
-                                "value": null
+                                "value": 0
                             },
                             {
                                 "color": "red",
                                 "value": 80
                             }
                         ]
-                    }
+                    },
+                    "unit": "velocityms"
                 },
-                "overrides": []
+                "overrides": [
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "omega",
+                            "scope": "series"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.axisPlacement",
+                                "value": "right"
+                            },
+                            {
+                                "id": "unit",
+                                "value": "rotdegs"
+                            },
+                            {
+                                "id": "displayName",
+                                "value": "Angular velocity"
+                            }
+                        ]
+                    }
+                ]
             },
             "gridPos": {
-                "h": 8,
-                "w": 24,
+                "h": 5,
+                "w": 12,
                 "x": 0,
                 "y": 0
             },
             "id": 1,
             "options": {
+                "annotations": {
+                    "clustering": -1,
+                    "multiLane": false
+                },
                 "legend": {
                     "calcs": [],
                     "displayMode": "list",
                     "placement": "bottom",
                     "showLegend": true
                 },
+                "timezone": [
+                    ""
+                ],
                 "tooltip": {
-                    "maxHeight": 600,
+                    "hideZeros": false,
                     "mode": "single",
                     "sort": "none"
                 }
             },
+            "pluginVersion": "13.0.0-23466975118",
             "targets": [
                 {
-                    "query": "from(bucket: \"robot\") |> range(start: -5m) |> filter(fn: (r) => r._measurement == \"test-measurement\") |> filter(fn: (r) => r.sensor == \"temperature\") |> filter(fn: (r) => r._field == \"value\")",
+                    "datasource": {
+                        "type": "influxdb",
+                        "uid": "P951FEA4DE68E13C5"
+                    },
+                    "query": "from(bucket: \"robot\")\r\n  |> range(start: -1h)\r\n  |> filter(fn: (r) => r._measurement == \"motion_intent\")\r\n  |> filter(fn: (r) => r._field == \"v\" or r._field == \"omega\")\r\n  |> aggregateWindow(every: 1s, fn: last, createEmpty: true)\r\n  |> fill(usePrevious: true)",
                     "refId": "A"
                 }
             ],
-            "title": "Temperature",
+            "title": "Target high-level motion",
             "type": "timeseries"
         },
         {
@@ -109,21 +155,18 @@
                 "type": "influxdb",
                 "uid": "P951FEA4DE68E13C5"
             },
-            "description": "",
+            "description": "Commands sent to the backend to apply the desired velocities",
             "gridPos": {
-                "h": 6,
-                "w": 12,
-                "x": 0,
-                "y": 8
+                "h": 5,
+                "w": 6,
+                "x": 12,
+                "y": 0
             },
             "id": 2,
             "options": {
                 "buttonGroup": {
-                    "orientation": "center",
+                    "orientation": "right",
                     "size": "md"
-                },
-                "buttons": {
-                    "submit": "Test-Request senden"
                 },
                 "confirmModal": {
                     "body": "Please confirm to update changed values",
@@ -145,29 +188,187 @@
                 "elementValueChanged": "",
                 "elements": [
                     {
-                        "id": "reason",
-                        "title": "Test-Nachricht",
-                        "type": "string",
-                        "uid": "5c8d0301-83d1-4d74-8c33-07344c270628",
-                        "value": "Hallo vom Roboter"
+                        "id": "lin-vel",
+                        "labelWidth": 15,
+                        "max": 1,
+                        "min": -1,
+                        "section": "",
+                        "showIf": "",
+                        "step": 0.1,
+                        "title": "Linear velocity",
+                        "tooltip": "",
+                        "type": "slider",
+                        "uid": "01b98a4d-0121-491a-b1bf-a405678d6508",
+                        "unit": "m/s",
+                        "value": 0
+                    },
+                    {
+                        "id": "ang-vel",
+                        "labelWidth": 15,
+                        "max": 10,
+                        "min": -10,
+                        "section": "",
+                        "step": 0.5,
+                        "title": "Angular velocity",
+                        "tooltip": "",
+                        "type": "slider",
+                        "uid": "64940521-39eb-48fd-a80b-9ea452923d13",
+                        "unit": "d/s",
+                        "value": 0
+                    }
+                ],
+                "initial": {
+                    "code": "context.panel.enableSubmit();",
+                    "contentType": "application/json",
+                    "datasource": "P951FEA4DE68E13C5",
+                    "getPayload": "return {}",
+                    "highlight": false,
+                    "highlightColor": "red",
+                    "method": "datasource",
+                    "payload": {
+                        "query": "from(bucket: \"robot\")\r\n  |> range(start: -7d)\r\n  |> filter(fn: (r) => r._measurement == \"motion_intent\")\r\n  |> filter(fn: (r) => r._field == \"v\" or r._field == \"omega\")\r\n  |> last()"
+                    },
+                    "url": "https://httpbin.org/get"
+                },
+                "layout": {
+                    "orientation": "horizontal",
+                    "padding": 12,
+                    "sectionVariant": "default",
+                    "variant": "single"
+                },
+                "reset": {
+                    "backgroundColor": "purple",
+                    "foregroundColor": "yellow",
+                    "icon": "pause",
+                    "text": "Stop",
+                    "variant": "hidden"
+                },
+                "resetAction": {
+                    "code": "fetch(\"http://localhost:5000/command/motion\", {\n  method: \"POST\",\n  headers: {\n    \"Content-Type\": \"application/json\"\n  },\n  body: JSON.stringify({\n    speed: 1.2,\n    omega: 0.5\n  })\n})\n  .then(response => response.json())",
+                    "confirm": false,
+                    "getPayload": "return {}",
+                    "mode": "custom",
+                    "payload": {}
+                },
+                "saveDefault": {
+                    "icon": "save",
+                    "text": "Save Default",
+                    "variant": "hidden"
+                },
+                "submit": {
+                    "backgroundColor": "purple",
+                    "foregroundColor": "yellow",
+                    "icon": "arrow-right",
+                    "text": "Submit",
+                    "variant": "primary"
+                },
+                "sync": false,
+                "update": {
+                    "code": "if (context.panel.response) {\n  context.grafana.notifySuccess(['Update', 'Values updated successfully.']);\n  context.grafana.refresh();\n} else {\n  context.grafana.notifyError(['Update', 'An error occurred updating values.']);\n}",
+                    "confirm": false,
+                    "contentType": "application/json",
+                    "getPayload": "const el_v = context.panel.elements.find(el => el.id === \"lin-vel\");\nconst el_omega = context.panel.elements.find(el => el.id === \"ang-vel\");\n\n\nv = el_v && el_v.value ? el_v.value : 0.0;\nomega = el_omega && el_omega.value ? el_omega.value : 0.0;\n\nreturn {\n  \"v\": v,\n  \"omega\": omega,\n};",
+                    "header": [],
+                    "method": "POST",
+                    "payload": {
+                        "emergency_stop": false,
+                        "omega": 0.1,
+                        "v": 89.3
+                    },
+                    "payloadMode": "custom",
+                    "url": "http://localhost:5000/command/motion"
+                },
+                "updateEnabled": "manual"
+            },
+            "pluginVersion": "6.3.1",
+            "targets": [
+                {
+                    "query": "",
+                    "refId": "A"
+                }
+            ],
+            "title": "Motion control",
+            "type": "volkovlabs-form-panel"
+        },
+        {
+            "datasource": {
+                "type": "datasource",
+                "uid": "grafana"
+            },
+            "description": "Manual motor control",
+            "gridPos": {
+                "h": 5,
+                "w": 6,
+                "x": 18,
+                "y": 0
+            },
+            "id": 11,
+            "options": {
+                "buttonGroup": {
+                    "orientation": "right",
+                    "size": "md"
+                },
+                "confirmModal": {
+                    "body": "Please confirm to update changed values",
+                    "cancel": "Cancel",
+                    "columns": {
+                        "include": [
+                            "name",
+                            "oldValue",
+                            "newValue"
+                        ],
+                        "name": "Label",
+                        "newValue": "New Value",
+                        "oldValue": "Old Value"
+                    },
+                    "confirm": "Confirm",
+                    "elementDisplayMode": "modified",
+                    "title": "Confirm update request"
+                },
+                "elementValueChanged": "",
+                "elements": [
+                    {
+                        "id": "pwm-left",
+                        "labelWidth": 15,
+                        "max": 1,
+                        "min": 0,
+                        "section": "",
+                        "step": 0.01,
+                        "title": "Left wheel PWM",
+                        "tooltip": "",
+                        "type": "slider",
+                        "uid": "0c16c4e2-31b5-4e6a-9e2a-65862117d7d7",
+                        "unit": "",
+                        "value": 0
+                    },
+                    {
+                        "id": "pwm-right",
+                        "labelWidth": 15,
+                        "max": 1,
+                        "min": 0,
+                        "section": "",
+                        "step": 0.01,
+                        "title": "Right wheel PWM",
+                        "tooltip": "",
+                        "type": "slider",
+                        "uid": "672e2685-1573-4a3b-ba2a-8bb6701b0625",
+                        "unit": "",
+                        "value": 0
                     }
                 ],
                 "initial": {
                     "code": "console.log(context.panel.data, context.panel.response, context.panel.initial, context.panel.elements);\n\nreturn;\n\n/**\n * Data Source\n * Requires form elements to be defined\n */\nconst dataQuery = context.utils.toDataQueryResponse(context.panel.response);\nconsole.log(dataQuery);",
                     "contentType": "application/json",
+                    "datasource": "P951FEA4DE68E13C5",
                     "getPayload": "return {}",
                     "highlight": false,
                     "highlightColor": "red",
-                    "method": "GET",
-                    "payload": {},
-                    "url": "https://httpbin.org/get"
-                },
-                "initialRequest": {
-                    "method": "none"
+                    "method": "datasource",
+                    "payload": {}
                 },
                 "layout": {
                     "orientation": "horizontal",
-                    "padding": 10,
+                    "padding": 12,
                     "sectionVariant": "default",
                     "variant": "single"
                 },
@@ -193,7 +394,7 @@
                 "submit": {
                     "backgroundColor": "purple",
                     "foregroundColor": "yellow",
-                    "icon": "cloud-upload",
+                    "icon": "arrow-right",
                     "text": "Submit",
                     "variant": "primary"
                 },
@@ -203,25 +404,735 @@
                     "confirm": false,
                     "contentType": "application/json",
                     "getPayload": "const payload = {};\ncontext.panel.elements.forEach((element) => {\n  if (!element.value) {\n    return;\n  }\n  payload[element.id] = element.value;\n})\nreturn payload;",
-                    "method": "POST",
+                    "method": "-",
                     "payload": {},
-                    "payloadMode": "all",
-                    "url": "https://httpbin.org/post"
+                    "payloadMode": "all"
                 },
-                "updateCode": "console.log('Antwort vom Server:', context.panel.response); if (context.panel.response) { context.grafana.notifySuccess(['Erfolg', 'Server hat geantwortet']); } else { context.grafana.notifyError(['Fehler', 'Keine Antwort erhalten - Check die Browser-Konsole!']); }",
-                "updateEnabled": "manual",
-                "updateRequest": {
-                    "contentType": "application/json",
-                    "method": "POST",
-                    "url": "https://httpbin.org/post"
-                }
+                "updateEnabled": "auto"
             },
             "pluginVersion": "6.3.1",
-            "title": "Steuerung (Test-Modus)",
+            "title": "Override PWM",
             "type": "volkovlabs-form-panel"
+        },
+        {
+            "datasource": {
+                "type": "influxdb",
+                "uid": "P951FEA4DE68E13C5"
+            },
+            "description": "Rotation speed of individual speeds",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "axisBorderShow": false,
+                        "axisCenteredZero": true,
+                        "axisColorMode": "text",
+                        "axisLabel": "",
+                        "axisPlacement": "auto",
+                        "barAlignment": 0,
+                        "barWidthFactor": 0.6,
+                        "drawStyle": "line",
+                        "fillOpacity": 30,
+                        "gradientMode": "opacity",
+                        "hideFrom": {
+                            "legend": false,
+                            "tooltip": false,
+                            "viz": false
+                        },
+                        "insertNulls": false,
+                        "lineInterpolation": "linear",
+                        "lineStyle": {
+                            "fill": "solid"
+                        },
+                        "lineWidth": 1,
+                        "pointSize": 3,
+                        "scaleDistribution": {
+                            "type": "linear"
+                        },
+                        "showPoints": "auto",
+                        "showValues": false,
+                        "spanNulls": false,
+                        "stacking": {
+                            "group": "A",
+                            "mode": "none"
+                        },
+                        "thresholdsStyle": {
+                            "mode": "off"
+                        }
+                    },
+                    "mappings": [],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": 0
+                            },
+                            {
+                                "color": "red",
+                                "value": 80
+                            }
+                        ]
+                    },
+                    "unit": "rotdegs"
+                },
+                "overrides": [
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "actual_speed left",
+                            "scope": "series"
+                        },
+                        "properties": [
+                            {
+                                "id": "displayName",
+                                "value": "Real [left]"
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "actual_speed right",
+                            "scope": "series"
+                        },
+                        "properties": [
+                            {
+                                "id": "displayName",
+                                "value": "Real [right]"
+                            },
+                            {
+                                "id": "custom.axisPlacement",
+                                "value": "right"
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "target_speed left",
+                            "scope": "series"
+                        },
+                        "properties": [
+                            {
+                                "id": "displayName",
+                                "value": "Target [left]"
+                            },
+                            {
+                                "id": "custom.fillOpacity",
+                                "value": 0
+                            },
+                            {
+                                "id": "custom.lineStyle",
+                                "value": {
+                                    "dash": [
+                                        10,
+                                        10
+                                    ],
+                                    "fill": "dash"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "target_speed right",
+                            "scope": "series"
+                        },
+                        "properties": [
+                            {
+                                "id": "displayName",
+                                "value": "Target [right]"
+                            },
+                            {
+                                "id": "custom.fillOpacity",
+                                "value": 0
+                            },
+                            {
+                                "id": "custom.lineStyle",
+                                "value": {
+                                    "dash": [
+                                        10,
+                                        10
+                                    ],
+                                    "fill": "dash"
+                                }
+                            },
+                            {
+                                "id": "custom.axisPlacement",
+                                "value": "right"
+                            }
+                        ]
+                    }
+                ]
+            },
+            "gridPos": {
+                "h": 10,
+                "w": 12,
+                "x": 0,
+                "y": 5
+            },
+            "id": 6,
+            "options": {
+                "annotations": {
+                    "clustering": -1,
+                    "multiLane": false
+                },
+                "legend": {
+                    "calcs": [],
+                    "displayMode": "list",
+                    "placement": "bottom",
+                    "showLegend": true
+                },
+                "tooltip": {
+                    "hideZeros": false,
+                    "mode": "single",
+                    "sort": "none"
+                }
+            },
+            "pluginVersion": "13.0.0-23466975118",
+            "targets": [
+                {
+                    "query": "from(bucket: \"robot\")\r\n  |> range(start: -1h)\r\n  |> filter(fn: (r) => r._measurement == \"wheel_state\")\r\n  |> filter(fn: (r) => r._field == \"actual_speed\" or r._field == \"target_speed\")\r\n  |> aggregateWindow(every: 1s, fn: last, createEmpty: true)\r\n  |> fill(usePrevious: true)",
+                    "refId": "A"
+                }
+            ],
+            "title": "Rotation speed",
+            "type": "timeseries"
+        },
+        {
+            "datasource": {
+                "type": "influxdb",
+                "uid": "P951FEA4DE68E13C5"
+            },
+            "description": "PWM signal to control wheel rotation",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "axisBorderShow": false,
+                        "axisCenteredZero": false,
+                        "axisColorMode": "text",
+                        "axisLabel": "",
+                        "axisPlacement": "auto",
+                        "barAlignment": 0,
+                        "barWidthFactor": 0.6,
+                        "drawStyle": "line",
+                        "fillOpacity": 30,
+                        "gradientMode": "opacity",
+                        "hideFrom": {
+                            "legend": false,
+                            "tooltip": false,
+                            "viz": false
+                        },
+                        "insertNulls": false,
+                        "lineInterpolation": "smooth",
+                        "lineWidth": 1,
+                        "pointSize": 5,
+                        "scaleDistribution": {
+                            "type": "linear"
+                        },
+                        "showPoints": "auto",
+                        "showValues": false,
+                        "spanNulls": false,
+                        "stacking": {
+                            "group": "A",
+                            "mode": "none"
+                        },
+                        "thresholdsStyle": {
+                            "mode": "off"
+                        }
+                    },
+                    "mappings": [],
+                    "thresholds": {
+                        "mode": "percentage",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": 0
+                            }
+                        ]
+                    }
+                },
+                "overrides": [
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "pwm left",
+                            "scope": "series"
+                        },
+                        "properties": [
+                            {
+                                "id": "displayName",
+                                "value": "PWM [left]"
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "pwm right",
+                            "scope": "series"
+                        },
+                        "properties": [
+                            {
+                                "id": "displayName",
+                                "value": "PWM [right]"
+                            },
+                            {
+                                "id": "custom.axisPlacement",
+                                "value": "right"
+                            }
+                        ]
+                    }
+                ]
+            },
+            "gridPos": {
+                "h": 5,
+                "w": 12,
+                "x": 12,
+                "y": 5
+            },
+            "id": 8,
+            "options": {
+                "annotations": {
+                    "clustering": -1,
+                    "multiLane": false
+                },
+                "legend": {
+                    "calcs": [],
+                    "displayMode": "list",
+                    "placement": "bottom",
+                    "showLegend": true
+                },
+                "tooltip": {
+                    "hideZeros": false,
+                    "mode": "single",
+                    "sort": "none"
+                }
+            },
+            "pluginVersion": "13.0.0-23466975118",
+            "targets": [
+                {
+                    "datasource": {
+                        "type": "influxdb",
+                        "uid": "P951FEA4DE68E13C5"
+                    },
+                    "query": "from(bucket: \"robot\")\r\n  |> range(start: -1h)\r\n  |> filter(fn: (r) => r._measurement == \"wheel_state\")\r\n  |> filter(fn: (r) => r._field == \"pwm\")\r\n  |> aggregateWindow(every: 1s, fn: last, createEmpty: true)\r\n  |> fill(usePrevious: true)",
+                    "refId": "A"
+                }
+            ],
+            "title": "PWM",
+            "type": "timeseries"
+        },
+        {
+            "datasource": {
+                "type": "influxdb",
+                "uid": "P951FEA4DE68E13C5"
+            },
+            "description": "Temperature of motors",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "axisBorderShow": false,
+                        "axisCenteredZero": false,
+                        "axisColorMode": "text",
+                        "axisLabel": "",
+                        "axisPlacement": "auto",
+                        "barAlignment": 0,
+                        "barWidthFactor": 0.6,
+                        "drawStyle": "line",
+                        "fillOpacity": 30,
+                        "gradientMode": "opacity",
+                        "hideFrom": {
+                            "legend": false,
+                            "tooltip": false,
+                            "viz": false
+                        },
+                        "insertNulls": false,
+                        "lineInterpolation": "smooth",
+                        "lineWidth": 1,
+                        "pointSize": 5,
+                        "scaleDistribution": {
+                            "type": "linear"
+                        },
+                        "showPoints": "auto",
+                        "showValues": false,
+                        "spanNulls": false,
+                        "stacking": {
+                            "group": "A",
+                            "mode": "none"
+                        },
+                        "thresholdsStyle": {
+                            "mode": "dashed"
+                        }
+                    },
+                    "mappings": [],
+                    "max": 100,
+                    "min": 0,
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": 0
+                            },
+                            {
+                                "color": "red",
+                                "value": 80
+                            }
+                        ]
+                    },
+                    "unit": "celsius"
+                },
+                "overrides": [
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "temperature left",
+                            "scope": "series"
+                        },
+                        "properties": [
+                            {
+                                "id": "displayName",
+                                "value": "Temperature [left]"
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "temperature right",
+                            "scope": "series"
+                        },
+                        "properties": [
+                            {
+                                "id": "displayName",
+                                "value": "Temperature [right]"
+                            },
+                            {
+                                "id": "custom.axisPlacement",
+                                "value": "right"
+                            }
+                        ]
+                    }
+                ]
+            },
+            "gridPos": {
+                "h": 5,
+                "w": 12,
+                "x": 12,
+                "y": 10
+            },
+            "id": 10,
+            "options": {
+                "annotations": {
+                    "clustering": -1,
+                    "multiLane": false
+                },
+                "legend": {
+                    "calcs": [],
+                    "displayMode": "list",
+                    "placement": "bottom",
+                    "showLegend": true
+                },
+                "tooltip": {
+                    "hideZeros": false,
+                    "mode": "single",
+                    "sort": "none"
+                }
+            },
+            "pluginVersion": "13.0.0-23466975118",
+            "targets": [
+                {
+                    "datasource": {
+                        "type": "influxdb",
+                        "uid": "P951FEA4DE68E13C5"
+                    },
+                    "query": "from(bucket: \"robot\")\r\n  |> range(start: -1h)\r\n  |> filter(fn: (r) => r._measurement == \"wheel_state\")\r\n  |> filter(fn: (r) => r._field == \"temperature\")\r\n  |> aggregateWindow(every: 1s, fn: last, createEmpty: true)\r\n  |> fill(usePrevious: true)",
+                    "refId": "A"
+                }
+            ],
+            "title": "Motor temperature",
+            "type": "timeseries"
+        },
+        {
+            "datasource": {
+                "type": "influxdb",
+                "uid": "P951FEA4DE68E13C5"
+            },
+            "description": "Error between target and actual rotation speed",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "axisBorderShow": false,
+                        "axisCenteredZero": false,
+                        "axisColorMode": "text",
+                        "axisLabel": "",
+                        "axisPlacement": "auto",
+                        "barAlignment": 0,
+                        "barWidthFactor": 0.6,
+                        "drawStyle": "line",
+                        "fillOpacity": 10,
+                        "gradientMode": "opacity",
+                        "hideFrom": {
+                            "legend": false,
+                            "tooltip": false,
+                            "viz": false
+                        },
+                        "insertNulls": false,
+                        "lineInterpolation": "smooth",
+                        "lineWidth": 1,
+                        "pointSize": 5,
+                        "scaleDistribution": {
+                            "type": "linear"
+                        },
+                        "showPoints": "auto",
+                        "showValues": false,
+                        "spanNulls": false,
+                        "stacking": {
+                            "group": "A",
+                            "mode": "none"
+                        },
+                        "thresholdsStyle": {
+                            "mode": "off"
+                        }
+                    },
+                    "mappings": [],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": 0
+                            },
+                            {
+                                "color": "red",
+                                "value": 80
+                            }
+                        ]
+                    },
+                    "unit": "rotdegs"
+                },
+                "overrides": [
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "left_error",
+                            "scope": "series"
+                        },
+                        "properties": [
+                            {
+                                "id": "displayName",
+                                "value": "Error [left]"
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "right_error",
+                            "scope": "series"
+                        },
+                        "properties": [
+                            {
+                                "id": "displayName",
+                                "value": "Error [right]"
+                            },
+                            {
+                                "id": "custom.axisPlacement",
+                                "value": "right"
+                            }
+                        ]
+                    }
+                ]
+            },
+            "gridPos": {
+                "h": 5,
+                "w": 12,
+                "x": 0,
+                "y": 15
+            },
+            "id": 7,
+            "options": {
+                "annotations": {
+                    "clustering": -1,
+                    "multiLane": false
+                },
+                "legend": {
+                    "calcs": [],
+                    "displayMode": "list",
+                    "placement": "bottom",
+                    "showLegend": true
+                },
+                "tooltip": {
+                    "hideZeros": false,
+                    "mode": "single",
+                    "sort": "none"
+                }
+            },
+            "pluginVersion": "13.0.0-23466975118",
+            "targets": [
+                {
+                    "datasource": {
+                        "type": "influxdb",
+                        "uid": "P951FEA4DE68E13C5"
+                    },
+                    "query": "from(bucket: \"robot\")\r\n  |> range(start: -1m)\r\n  |> filter(fn: (r) => r._measurement == \"wheel_state\")\r\n  |> filter(fn: (r) => r._field == \"actual_speed\" or r._field == \"target_speed\")\r\n  |> aggregateWindow(every: 1s, fn: last, createEmpty: true)\r\n  |> fill(usePrevious: true)\r\n  |> pivot(\r\n      rowKey: [\"_time\"],\r\n      columnKey: [\"_field\", \"wheel_side\"],\r\n      valueColumn: \"_value\"\r\n  )\r\n  |> map(fn: (r) => ({\r\n      _time: r._time,\r\n      left_error: r.target_speed_left - r.actual_speed_left,\r\n      right_error: r.target_speed_right - r.actual_speed_right\r\n  }))",
+                    "refId": "A"
+                }
+            ],
+            "title": "Rotation speed error",
+            "type": "timeseries"
+        },
+        {
+            "datasource": {
+                "type": "influxdb",
+                "uid": "P951FEA4DE68E13C5"
+            },
+            "description": "Wheel position",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "axisBorderShow": false,
+                        "axisCenteredZero": false,
+                        "axisColorMode": "text",
+                        "axisLabel": "",
+                        "axisPlacement": "auto",
+                        "barAlignment": 0,
+                        "barWidthFactor": 0.6,
+                        "drawStyle": "line",
+                        "fillOpacity": 0,
+                        "gradientMode": "opacity",
+                        "hideFrom": {
+                            "legend": false,
+                            "tooltip": false,
+                            "viz": false
+                        },
+                        "insertNulls": false,
+                        "lineInterpolation": "linear",
+                        "lineWidth": 1,
+                        "pointSize": 5,
+                        "scaleDistribution": {
+                            "type": "linear"
+                        },
+                        "showPoints": "auto",
+                        "showValues": false,
+                        "spanNulls": false,
+                        "stacking": {
+                            "group": "A",
+                            "mode": "none"
+                        },
+                        "thresholdsStyle": {
+                            "mode": "off"
+                        }
+                    },
+                    "mappings": [],
+                    "max": 360,
+                    "min": 0,
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": 0
+                            },
+                            {
+                                "color": "red",
+                                "value": 80
+                            }
+                        ]
+                    },
+                    "unit": "degree"
+                },
+                "overrides": [
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "actual_angle left",
+                            "scope": "series"
+                        },
+                        "properties": [
+                            {
+                                "id": "displayName",
+                                "value": "Position [left]"
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "actual_angle right",
+                            "scope": "series"
+                        },
+                        "properties": [
+                            {
+                                "id": "displayName",
+                                "value": "Position [right]"
+                            },
+                            {
+                                "id": "custom.axisPlacement",
+                                "value": "right"
+                            }
+                        ]
+                    }
+                ]
+            },
+            "gridPos": {
+                "h": 5,
+                "w": 12,
+                "x": 12,
+                "y": 15
+            },
+            "id": 9,
+            "options": {
+                "annotations": {
+                    "clustering": -1,
+                    "multiLane": false
+                },
+                "legend": {
+                    "calcs": [],
+                    "displayMode": "list",
+                    "placement": "bottom",
+                    "showLegend": true
+                },
+                "tooltip": {
+                    "hideZeros": false,
+                    "mode": "single",
+                    "sort": "none"
+                }
+            },
+            "pluginVersion": "13.0.0-23466975118",
+            "targets": [
+                {
+                    "datasource": {
+                        "type": "influxdb",
+                        "uid": "P951FEA4DE68E13C5"
+                    },
+                    "query": "from(bucket: \"robot\")\r\n  |> range(start: -1h)\r\n  |> filter(fn: (r) => r._measurement == \"wheel_state\")\r\n  |> filter(fn: (r) => r._field == \"actual_angle\")\r\n  |> aggregateWindow(every: 1s, fn: last, createEmpty: true)\r\n  |> fill(usePrevious: true)",
+                    "refId": "A"
+                }
+            ],
+            "title": "Wheel position",
+            "type": "timeseries"
         }
     ],
-    "schemaVersion": 39,
+    "preload": false,
+    "schemaVersion": 42,
     "tags": [],
     "templating": {
         "list": []
@@ -230,11 +1141,11 @@
         "from": "now-6h",
         "to": "now"
     },
-    "timeRangeUpdatedDuringEditOrView": false,
     "timepicker": {},
-    "timezone": "",
-    "title": "Robot Dashboard",
-    "uid": "efh0aja2q0lq8c",
-    "version": 1,
-    "weekStart": ""
+    "timezone": "browser",
+    "title": "New dash Copy",
+    "weekStart": "",
+    "version": 38,
+    "uid": "durt7xp",
+    "id": 1505889902460928
 }
