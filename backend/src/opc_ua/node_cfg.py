@@ -34,6 +34,7 @@ def _get_nodes_by_idx(idx):
         f'ns=3;s="DB_Robot"."MotorControls"[{idx}]."TargetSpeed"': _meta_state(idx, "target_speed"),
         f'ns=3;s="DB_Robot"."MotorControls"[{idx}]."Stop"': _meta_state(idx, "stop"),
         f'ns=3;s="DB_Robot"."MotorControls"[{idx}]."OverridePWM"': _meta_state(idx, "pwm_override"),
+        f'ns=3;s="DB_Robot"."MotorControls"[{idx}]."EnableOverridePWM"': _meta_state(idx, "pwm_override_enable"),
         f'ns=3;s="DB_Robot"."MotorControls"[{idx}]."Motor"."Enable"': _meta_state(idx, "enabled"),
         f'ns=3;s="DB_Robot"."MotorControls"[{idx}]."Motor"."Fault"': _meta_state(idx, "fault"),
         f'ns=3;s="DB_Robot"."MotorControls"[{idx}]."Motor"."PWM"': _meta_state(idx, "pwm"),
@@ -74,3 +75,15 @@ class NodeWithValueBuilder:
 
     def right_stop(value: bool):
         return NodeWithValue(f'ns=3;s="DB_Robot"."MotorControls"[1]."Stop"', ua.VariantType.Boolean, value)
+
+    def left_pwm_override(value: float):
+        return NodeWithValue(f'ns=3;s="DB_Robot"."MotorControls"[0]."OverridePWM"', ua.VariantType.Float, value)
+
+    def right_pwm_override(value: float):
+        return NodeWithValue(f'ns=3;s="DB_Robot"."MotorControls"[1]."OverridePWM"', ua.VariantType.Float, value)
+
+    def left_pwm_override_enable(value: bool):
+        return NodeWithValue(f'ns=3;s="DB_Robot"."MotorControls"[0]."EnableOverridePWM"', ua.VariantType.Boolean, value)
+
+    def right_pwm_override_enable(value: bool):
+        return NodeWithValue(f'ns=3;s="DB_Robot"."MotorControls"[1]."EnableOverridePWM"', ua.VariantType.Boolean, value)

@@ -71,9 +71,10 @@ async def _poll_node_values(client: Client, nodes, queue: asyncio.Queue):
             await asyncio.sleep(poll_interval)
 
 
-async def handle_commands(incoming_commands: asyncio.Queue, client: Client):
+async def _handle_commands(incoming_commands: asyncio.Queue, client: Client):
     command_handlers = {
-        "motor": handle_motor_command,
+        "motor": _handle_motor_command,
+        "motor_pwm_override": _handle_motor_pwm_override_command,
     }
 
     while True:
@@ -91,13 +92,33 @@ async def handle_commands(incoming_commands: asyncio.Queue, client: Client):
             print(f"Error handling command: {e}")
 
 
-async def handle_motor_command(cmd, client: Client):
+async def _handle_motor_command(cmd, client: Client):
     builder = node_cfg.NodeWithValueBuilder
     node_info_with_values = [
         builder.left_target_speed(cmd.left_speed),
         builder.right_target_speed(cmd.right_speed),
         builder.left_stop(cmd.emergency_stop),
         builder.right_stop(cmd.emergency_stop),
+        builder.left_pwm_override_enable(False),
+        builder.right_pwm_override_enable(False),
+    ]
+
+    node_names = [node.name for node in node_info_with_values]
+    nodes = [client.get_node(name) for name in node_names]
+    values_to_write = [
+        ua.DataValue(ua.Variant(n.value, n.variant_type))
+        for n in node_info_with_values
+    ]
+    await client.write_values(nodes, values_to_write)
+
+
+async def _handle_motor_pwm_override_command(cmd, client: Client):
+    builder = node_cfg.NodeWithValueBuilder
+    node_info_with_values = [
+        builder.left_pwm_override(cmd.left_pwm),
+        builder.right_pwm_override(cmd.right_pwm),
+        builder.left_pwm_override_enable(True),
+        builder.right_pwm_override_enable(True),
     ]
 
     node_names = [node.name for node in node_info_with_values]
@@ -133,7 +154,7 @@ async def session(incoming_commands: asyncio.Queue, outgoing_commands: asyncio.Q
         await subs.subscribe_data_change(nodes)
 
         asyncio.create_task(
-            handle_commands(incoming_commands, client)
+            _handle_commands(incoming_commands, client)
         )
         asyncio.create_task(
             _poll_node_values(client, nodes, outgoing_commands)

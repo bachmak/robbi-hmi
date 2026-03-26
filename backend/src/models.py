@@ -24,6 +24,19 @@ class MotorCommand(Command):
     emergency_stop: Optional[bool] = False
 
 
+class PwmOverrideCommand(BaseModel):
+    """External API request for wheel PWM override values."""
+    left_pwm: float
+    right_pwm: float
+
+
+class MotorPwmOverrideCommand(Command):
+    """Internal command for OPC UA PWM override control."""
+    type: str = "motor_pwm_override"
+    left_pwm: float
+    right_pwm: float
+
+
 class MotionIntent(BaseModel):
     v: float
     omega: float
