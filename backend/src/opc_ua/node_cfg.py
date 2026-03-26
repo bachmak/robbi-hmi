@@ -16,7 +16,6 @@ def _meta_cfg(idx, name):
     return node_data.NodeMetaData(
         domain_name="wheel_config",
         side=_idx_to_side(idx),
-        robot_id="robot_0",
         name=name,
     )
 
@@ -25,7 +24,6 @@ def _meta_state(idx, name):
     return node_data.NodeMetaData(
         domain_name="wheel_state",
         side=_idx_to_side(idx),
-        robot_id="robot_0",
         name=name,
     )
 

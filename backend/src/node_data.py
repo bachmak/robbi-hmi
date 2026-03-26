@@ -7,7 +7,6 @@ import datetime
 class NodeMetaData:
     domain_name: str
     side: str
-    robot_id: str
     name: str
 
 
