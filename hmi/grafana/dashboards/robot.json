@@ -11,6 +11,12 @@
                 "hide": true,
                 "iconColor": "rgba(0, 211, 255, 1)",
                 "name": "Annotations & Alerts",
+                "target": {
+                    "limit": 100,
+                    "matchAny": false,
+                    "tags": [],
+                    "type": "dashboard"
+                },
                 "type": "dashboard"
             }
         ]
@@ -136,7 +142,7 @@
                     "sort": "none"
                 }
             },
-            "pluginVersion": "13.0.0-23466975118",
+            "pluginVersion": "13.0.0-23336907879",
             "targets": [
                 {
                     "datasource": {
@@ -155,11 +161,76 @@
                 "type": "influxdb",
                 "uid": "P951FEA4DE68E13C5"
             },
-            "description": "Commands sent to the backend to apply the desired velocities",
+            "description": "Currently active mode (how the robot is controlled)",
+            "fieldConfig": {
+                "defaults": {
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": 0
+                            },
+                            {
+                                "color": "red",
+                                "value": 80
+                            }
+                        ]
+                    }
+                },
+                "overrides": []
+            },
             "gridPos": {
                 "h": 5,
-                "w": 6,
+                "w": 2,
                 "x": 12,
+                "y": 0
+            },
+            "id": 12,
+            "options": {
+                "afterRender": "",
+                "content": "{{#if @root.pwm_override_enable}}\n🟢 MANUAL\n{{else}}\n⚪ AUTOMATIC\n{{/if}}",
+                "contentPartials": [],
+                "defaultContent": "The query didn't return any results.",
+                "editor": {
+                    "format": "auto",
+                    "language": "handlebars"
+                },
+                "editors": [],
+                "externalStyles": [],
+                "helpers": "",
+                "renderMode": "everyRow",
+                "styles": "",
+                "wrap": false
+            },
+            "pluginVersion": "6.2.0",
+            "targets": [
+                {
+                    "datasource": {
+                        "type": "influxdb",
+                        "uid": "P951FEA4DE68E13C5"
+                    },
+                    "query": "from(bucket: \"robot\")\r\n  |> range(start: -30d)\r\n  |> filter(fn: (r) => r._measurement == \"wheel_state\")\r\n  |> filter(fn: (r) => r._field == \"pwm_override_enable\")\r\n  |> last()",
+                    "refId": "A"
+                }
+            ],
+            "title": "Mode",
+            "type": "marcusolsson-dynamictext-panel"
+        },
+        {
+            "datasource": {
+                "type": "influxdb",
+                "uid": "P951FEA4DE68E13C5"
+            },
+            "description": "Commands sent to the backend to apply the desired velocities",
+            "fieldConfig": {
+                "defaults": {},
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 5,
+                "w": 5,
+                "x": 14,
                 "y": 0
             },
             "id": 2,
@@ -188,14 +259,20 @@
                 "elementValueChanged": "",
                 "elements": [
                     {
+                        "fieldName": "v",
                         "id": "lin-vel",
-                        "labelWidth": 15,
+                        "labelWidth": 8,
                         "max": 1,
                         "min": -1,
+                        "queryField": {
+                            "label": "A:v",
+                            "refId": "A",
+                            "value": "v"
+                        },
                         "section": "",
                         "showIf": "",
                         "step": 0.1,
-                        "title": "Linear velocity",
+                        "title": "Linear",
                         "tooltip": "",
                         "type": "slider",
                         "uid": "01b98a4d-0121-491a-b1bf-a405678d6508",
@@ -203,13 +280,19 @@
                         "value": 0
                     },
                     {
+                        "fieldName": "omega",
                         "id": "ang-vel",
-                        "labelWidth": 15,
+                        "labelWidth": 8,
                         "max": 10,
                         "min": -10,
+                        "queryField": {
+                            "label": "A:omega",
+                            "refId": "A",
+                            "value": "omega"
+                        },
                         "section": "",
                         "step": 0.5,
-                        "title": "Angular velocity",
+                        "title": "Angular",
                         "tooltip": "",
                         "type": "slider",
                         "uid": "64940521-39eb-48fd-a80b-9ea452923d13",
@@ -224,9 +307,9 @@
                     "getPayload": "return {}",
                     "highlight": false,
                     "highlightColor": "red",
-                    "method": "datasource",
+                    "method": "query",
                     "payload": {
-                        "query": "from(bucket: \"robot\")\r\n  |> range(start: -7d)\r\n  |> filter(fn: (r) => r._measurement == \"motion_intent\")\r\n  |> filter(fn: (r) => r._field == \"v\" or r._field == \"omega\")\r\n  |> last()"
+                        "query": "from(bucket: \"robot\")\r\n  |> range(start: -7d)\r\n  |> filter(fn: (r) => r._measurement == \"motion_intent\")\r\n  |> filter(fn: (r) => r._field == \"v\" or r._field == \"omega\")\r\n  |> last()\r\n  |> pivot(\r\n      rowKey:[\"_time\"],\r\n      columnKey: [\"_field\"],\r\n      valueColumn: \"_value\"\r\n  )"
                     },
                     "url": "https://httpbin.org/get"
                 },
@@ -283,7 +366,7 @@
             "pluginVersion": "6.3.1",
             "targets": [
                 {
-                    "query": "",
+                    "query": "from(bucket: \"robot\")\r\n  |> range(start: -1d)\r\n  |> filter(fn: (r) => r._measurement == \"motion_intent\")\r\n  |> filter(fn: (r) => r._field == \"omega\" or r._field == \"v\")\r\n  |> last()",
                     "refId": "A"
                 }
             ],
@@ -292,14 +375,18 @@
         },
         {
             "datasource": {
-                "type": "datasource",
-                "uid": "grafana"
+                "type": "influxdb",
+                "uid": "P951FEA4DE68E13C5"
             },
             "description": "Manual motor control",
+            "fieldConfig": {
+                "defaults": {},
+                "overrides": []
+            },
             "gridPos": {
                 "h": 5,
-                "w": 6,
-                "x": 18,
+                "w": 5,
+                "x": 19,
                 "y": 0
             },
             "id": 11,
@@ -328,13 +415,19 @@
                 "elementValueChanged": "",
                 "elements": [
                     {
+                        "fieldName": "",
                         "id": "pwm-left",
-                        "labelWidth": 15,
+                        "labelWidth": 8,
                         "max": 1,
                         "min": 0,
+                        "queryField": {
+                            "label": "A:pwm_override left",
+                            "refId": "A",
+                            "value": "pwm_override left"
+                        },
                         "section": "",
                         "step": 0.01,
-                        "title": "Left wheel PWM",
+                        "title": "Left",
                         "tooltip": "",
                         "type": "slider",
                         "uid": "0c16c4e2-31b5-4e6a-9e2a-65862117d7d7",
@@ -342,13 +435,19 @@
                         "value": 0
                     },
                     {
+                        "fieldName": "",
                         "id": "pwm-right",
-                        "labelWidth": 15,
+                        "labelWidth": 8,
                         "max": 1,
                         "min": 0,
+                        "queryField": {
+                            "label": "A:pwm_override right",
+                            "refId": "A",
+                            "value": "pwm_override right"
+                        },
                         "section": "",
                         "step": 0.01,
-                        "title": "Right wheel PWM",
+                        "title": "Right",
                         "tooltip": "",
                         "type": "slider",
                         "uid": "672e2685-1573-4a3b-ba2a-8bb6701b0625",
@@ -357,14 +456,16 @@
                     }
                 ],
                 "initial": {
-                    "code": "console.log(context.panel.data, context.panel.response, context.panel.initial, context.panel.elements);\n\nreturn;\n\n/**\n * Data Source\n * Requires form elements to be defined\n */\nconst dataQuery = context.utils.toDataQueryResponse(context.panel.response);\nconsole.log(dataQuery);",
+                    "code": "context.panel.enableSubmit();",
                     "contentType": "application/json",
                     "datasource": "P951FEA4DE68E13C5",
                     "getPayload": "return {}",
                     "highlight": false,
                     "highlightColor": "red",
-                    "method": "datasource",
-                    "payload": {}
+                    "method": "query",
+                    "payload": {
+                        "query": "from(bucket: \"robot\")\r\n  |> range(start: -1d)\r\n  |> filter(fn: (r) => r._measurement == \"wheel_state\")\r\n  |> filter(fn: (r) => r._field == \"pwm_override\")\r\n  |> last()"
+                    }
                 },
                 "layout": {
                     "orientation": "horizontal",
@@ -403,14 +504,25 @@
                     "code": "if (context.panel.response) {\n  context.grafana.notifySuccess(['Update', 'Values updated successfully.']);\n  context.grafana.refresh();\n} else {\n  context.grafana.notifyError(['Update', 'An error occurred updating values.']);\n}",
                     "confirm": false,
                     "contentType": "application/json",
-                    "getPayload": "const payload = {};\ncontext.panel.elements.forEach((element) => {\n  if (!element.value) {\n    return;\n  }\n  payload[element.id] = element.value;\n})\nreturn payload;",
-                    "method": "-",
+                    "getPayload": "const el_l = context.panel.elements.find(el => el.id === \"pwm-left\");\nconst el_r = context.panel.elements.find(el => el.id === \"pwm-right\");\n\n\npwm_l = el_l && el_l.value ? el_l.value : 0.0;\npwm_r = el_r && el_r.value ? el_r.value : 0.0;\n\nreturn {\n  \"left_pwm\": pwm_l,\n  \"right_pwm\": pwm_r,\n};",
+                    "method": "POST",
                     "payload": {},
-                    "payloadMode": "all"
+                    "payloadMode": "custom",
+                    "url": "http://localhost:5000/command/pwm_override"
                 },
-                "updateEnabled": "auto"
+                "updateEnabled": "manual"
             },
             "pluginVersion": "6.3.1",
+            "targets": [
+                {
+                    "datasource": {
+                        "type": "influxdb",
+                        "uid": "P951FEA4DE68E13C5"
+                    },
+                    "query": "from(bucket: \"robot\")\r\n  |> range(start: -1d)\r\n  |> filter(fn: (r) => r._measurement == \"wheel_state\")\r\n  |> filter(fn: (r) => r._field == \"pwm_override\")\r\n  |> last()",
+                    "refId": "A"
+                }
+            ],
             "title": "Override PWM",
             "type": "volkovlabs-form-panel"
         },
@@ -593,7 +705,7 @@
                     "sort": "none"
                 }
             },
-            "pluginVersion": "13.0.0-23466975118",
+            "pluginVersion": "13.0.0-23336907879",
             "targets": [
                 {
                     "query": "from(bucket: \"robot\")\r\n  |> range(start: -1h)\r\n  |> filter(fn: (r) => r._measurement == \"wheel_state\")\r\n  |> filter(fn: (r) => r._field == \"actual_speed\" or r._field == \"target_speed\")\r\n  |> aggregateWindow(every: 1s, fn: last, createEmpty: true)\r\n  |> fill(usePrevious: true)",
@@ -716,7 +828,7 @@
                     "sort": "none"
                 }
             },
-            "pluginVersion": "13.0.0-23466975118",
+            "pluginVersion": "13.0.0-23336907879",
             "targets": [
                 {
                     "datasource": {
@@ -850,7 +962,7 @@
                     "sort": "none"
                 }
             },
-            "pluginVersion": "13.0.0-23466975118",
+            "pluginVersion": "13.0.0-23336907879",
             "targets": [
                 {
                     "datasource": {
@@ -982,14 +1094,14 @@
                     "sort": "none"
                 }
             },
-            "pluginVersion": "13.0.0-23466975118",
+            "pluginVersion": "13.0.0-23336907879",
             "targets": [
                 {
                     "datasource": {
                         "type": "influxdb",
                         "uid": "P951FEA4DE68E13C5"
                     },
-                    "query": "from(bucket: \"robot\")\r\n  |> range(start: -1m)\r\n  |> filter(fn: (r) => r._measurement == \"wheel_state\")\r\n  |> filter(fn: (r) => r._field == \"actual_speed\" or r._field == \"target_speed\")\r\n  |> aggregateWindow(every: 1s, fn: last, createEmpty: true)\r\n  |> fill(usePrevious: true)\r\n  |> pivot(\r\n      rowKey: [\"_time\"],\r\n      columnKey: [\"_field\", \"wheel_side\"],\r\n      valueColumn: \"_value\"\r\n  )\r\n  |> map(fn: (r) => ({\r\n      _time: r._time,\r\n      left_error: r.target_speed_left - r.actual_speed_left,\r\n      right_error: r.target_speed_right - r.actual_speed_right\r\n  }))",
+                    "query": "from(bucket: \"robot\")\r\n  |> range(start: -1h)\r\n  |> filter(fn: (r) => r._measurement == \"wheel_state\")\r\n  |> filter(fn: (r) => r._field == \"actual_speed\" or r._field == \"target_speed\")\r\n  |> aggregateWindow(every: 1s, fn: last, createEmpty: true)\r\n  |> fill(usePrevious: true)\r\n  |> pivot(\r\n      rowKey: [\"_time\"],\r\n      columnKey: [\"_field\", \"wheel_side\"],\r\n      valueColumn: \"_value\"\r\n  )\r\n  |> map(fn: (r) => ({\r\n      _time: r._time,\r\n      left_error: r.target_speed_left - r.actual_speed_left,\r\n      right_error: r.target_speed_right - r.actual_speed_right\r\n  }))",
                     "refId": "A"
                 }
             ],
@@ -1116,7 +1228,7 @@
                     "sort": "none"
                 }
             },
-            "pluginVersion": "13.0.0-23466975118",
+            "pluginVersion": "13.0.0-23336907879",
             "targets": [
                 {
                     "datasource": {
@@ -1132,20 +1244,34 @@
         }
     ],
     "preload": false,
+    "refresh": "1s",
     "schemaVersion": 42,
     "tags": [],
     "templating": {
         "list": []
     },
     "time": {
-        "from": "now-6h",
+        "from": "now-30s",
         "to": "now"
     },
-    "timepicker": {},
+    "timepicker": {
+        "hidden": true,
+        "refresh_intervals": [
+            "1s",
+            "5s",
+            "10s",
+            "30s",
+            "1m",
+            "5m",
+            "15m",
+            "30m",
+            "1h",
+            "2h"
+        ]
+    },
     "timezone": "browser",
-    "title": "New dash Copy",
-    "weekStart": "",
-    "version": 38,
+    "title": "Robot",
     "uid": "durt7xp",
-    "id": 1505889902460928
+    "version": 2,
+    "weekStart": ""
 }

@@ -56,12 +56,12 @@ services:
       - DB_TOKEN=${DB_TOKEN}
       - DB_ORG=${DB_ORG}
       - DB_BUCKET_INIT=${DB_BUCKET_INIT}
-      - GF_INSTALL_PLUGINS=volkovlabs-form-panel
 
     # substitute environment variables into datasources
     entrypoint: >
       /bin/sh -c "envsubst < /etc/grafana/provisioning/datasources/datasource.yml.template > /etc/grafana/provisioning/datasources/datasource.yml && /run.sh"
     volumes:
+      - ./hmi/grafana/grafana.ini:/etc/grafana/grafana.ini:ro
       - ./hmi/grafana/provisioning:/etc/grafana/provisioning
       - ./hmi/grafana/dashboards:/var/lib/grafana/dashboards
       # TODO: remove
