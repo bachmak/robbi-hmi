@@ -1,4 +1,4 @@
-from asyncua import Client
+from asyncua import Client, ua
 from contextlib import asynccontextmanager
 from config import opc_ua as cfg
 import asyncio
@@ -45,7 +45,33 @@ class SubscriptionHandler:
         asyncio.create_task(self.queue.put(nd))
 
 
-async def session(incoming: asyncio.Queue, outgoing: asyncio.Queue):
+async def handle_commands(incoming_commands: asyncio.Queue, client: Client):
+    while True:
+        try:
+            cmd = await incoming_commands.get()
+            print(f"Received motor command: {cmd}")
+
+            builder = node_cfg.NodeWithValueBuilder()
+            node_info_with_values = [
+                builder.left_target_speed(cmd.left_speed),
+                builder.right_target_speed(cmd.right_speed),
+                builder.left_stop(cmd.emergency_stop),
+                builder.right_stop(cmd.emergency_stop),
+            ]
+
+            node_names = [node.name for node in node_info_with_values]
+            nodes = [client.get_node(name) for name in node_names]
+            values_to_write = [
+                ua.DataValue(ua.Variant(n.value, n.variant_type))
+                for n in node_info_with_values
+            ]
+            await client.write_values(nodes, values_to_write)
+
+        except Exception as e:
+            print(f"Error handling motor command: {e}")
+
+
+async def session(incoming_commands: asyncio.Queue, outgoing_commands: asyncio.Queue):
     print("Connecting to OPC UA Server...")
 
     async with _get_connected_client([
@@ -55,7 +81,7 @@ async def session(incoming: asyncio.Queue, outgoing: asyncio.Queue):
 
         print("Connected to OPC UA Server")
 
-        handler = SubscriptionHandler(outgoing)
+        handler = SubscriptionHandler(outgoing_commands)
         subs = await client.create_subscription(
             500,
             handler,
@@ -68,10 +94,7 @@ async def session(incoming: asyncio.Queue, outgoing: asyncio.Queue):
 
         await subs.subscribe_data_change(nodes)
 
-        async def handle_commands():
-            while True:
-                cmd = await incoming.get()
-                print(f"Received command: {cmd}")
-
-        command_task = asyncio.create_task(handle_commands())
+        command_task = asyncio.create_task(
+            handle_commands(incoming_commands, client)
+        )
         await asyncio.Event().wait()

@@ -1,4 +1,7 @@
+from attr import dataclass
+
 import node_data
+from asyncua import ua
 
 
 def _idx_to_side(idx):
@@ -52,3 +55,24 @@ def get_node_names_to_subscribe():
 
 def get_node_meta_data(node):
     return _nodes[node.nodeid.to_string()]
+
+
+@dataclass
+class NodeWithValue:
+    name: str
+    variant_type: ua.VariantType
+    value: any = None
+
+
+class NodeWithValueBuilder:
+    def left_target_speed(value: float):
+        return NodeWithValue(f'ns=3;s="DB_Robot"."MotorControls"[0]."TargetSpeed"', ua.VariantType.Float, value)
+
+    def right_target_speed(value: float):
+        return NodeWithValue(f'ns=3;s="DB_Robot"."MotorControls"[1]."TargetSpeed"', ua.VariantType.Float, value)
+
+    def left_stop(value: bool):
+        return NodeWithValue(f'ns=3;s="DB_Robot"."MotorControls"[0]."Stop"', ua.VariantType.Boolean, value)
+
+    def right_stop(value: bool):
+        return NodeWithValue(f'ns=3;s="DB_Robot"."MotorControls"[1]."Stop"', ua.VariantType.Boolean, value)
