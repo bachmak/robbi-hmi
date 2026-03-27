@@ -414,7 +414,7 @@
                 "type": "influxdb",
                 "uid": "P951FEA4DE68E13C5"
             },
-            "description": "Manual motor control",
+            "description": "Manual motor control (0 = full reverse, 1 = full forward)",
             "fieldConfig": {
                 "defaults": {},
                 "overrides": []
@@ -555,7 +555,7 @@
                         "type": "influxdb",
                         "uid": "P951FEA4DE68E13C5"
                     },
-                    "query": "from(bucket: \"robot\")\r\n  |> range(start: -1d)\r\n  |> filter(fn: (r) => r._measurement == \"wheel_state\")\r\n  |> filter(fn: (r) => r._field == \"pwm_override\")\r\n  |> last()",
+                    "query": "import \"math\"\r\n\r\nfrom(bucket: \"robot\")\r\n  |> range(start: -1d)\r\n  |> filter(fn: (r) => r._measurement == \"wheel_state\")\r\n  |> filter(fn: (r) => r._field == \"pwm_override\")\r\n  |> last()\r\n  |> map(fn: (r) => ({\r\n      r with _value: math.round(x: r._value * 100.0) / 100.0\r\n  }))",
                     "refId": "A"
                 }
             ],
@@ -1307,6 +1307,6 @@
     "timezone": "browser",
     "title": "Robot",
     "uid": "durt7xp",
-    "version": 1,
+    "version": 3,
     "weekStart": ""
 }
