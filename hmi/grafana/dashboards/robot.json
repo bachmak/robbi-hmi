@@ -161,9 +161,29 @@
                 "type": "influxdb",
                 "uid": "P951FEA4DE68E13C5"
             },
-            "description": "Currently active mode (how the robot is controlled)",
             "fieldConfig": {
                 "defaults": {
+                    "color": {
+                        "fixedColor": "yellow",
+                        "mode": "palette-classic"
+                    },
+                    "mappings": [
+                        {
+                            "options": {
+                                "0": {
+                                    "color": "orange",
+                                    "index": 0,
+                                    "text": "PWM"
+                                },
+                                "1": {
+                                    "color": "green",
+                                    "index": 1,
+                                    "text": "Motion"
+                                }
+                            },
+                            "type": "value"
+                        }
+                    ],
                     "thresholds": {
                         "mode": "absolute",
                         "steps": [
@@ -172,8 +192,12 @@
                                 "value": 0
                             },
                             {
-                                "color": "red",
-                                "value": 80
+                                "color": "#EAB839",
+                                "value": 0
+                            },
+                            {
+                                "color": "#6ED0E0",
+                                "value": 1
                             }
                         ]
                     }
@@ -188,34 +212,46 @@
             },
             "id": 12,
             "options": {
-                "afterRender": "",
-                "content": "{{#if @root.pwm_override_enable}}\n🟢 MANUAL\n{{else}}\n⚪ AUTOMATIC\n{{/if}}",
-                "contentPartials": [],
-                "defaultContent": "The query didn't return any results.",
-                "editor": {
-                    "format": "auto",
-                    "language": "handlebars"
+                "barShape": "flat",
+                "barWidthFactor": 0.1,
+                "effects": {
+                    "barGlow": false,
+                    "centerGlow": false,
+                    "gradient": true
                 },
-                "editors": [],
-                "externalStyles": [],
-                "helpers": "",
-                "renderMode": "everyRow",
-                "styles": "",
-                "wrap": false
+                "endpointMarker": "point",
+                "minVizHeight": 75,
+                "minVizWidth": 75,
+                "orientation": "auto",
+                "reduceOptions": {
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "fields": "",
+                    "values": false
+                },
+                "segmentCount": 1,
+                "segmentSpacing": 0.3,
+                "shape": "gauge",
+                "showThresholdLabels": false,
+                "showThresholdMarkers": false,
+                "sizing": "auto",
+                "sparkline": true,
+                "textMode": "auto"
             },
-            "pluginVersion": "6.2.0",
+            "pluginVersion": "13.0.0-23336907879",
             "targets": [
                 {
                     "datasource": {
                         "type": "influxdb",
                         "uid": "P951FEA4DE68E13C5"
                     },
-                    "query": "from(bucket: \"robot\")\r\n  |> range(start: -30d)\r\n  |> filter(fn: (r) => r._measurement == \"wheel_state\")\r\n  |> filter(fn: (r) => r._field == \"pwm_override_enable\")\r\n  |> last()",
+                    "query": "from(bucket: \"robot\")\r\n  |> range(start: -1h)\r\n  |> filter(fn: (r) => r._measurement == \"wheel_state\")\r\n  |> filter(fn: (r) => r._field == \"pwm_override_enable\")\r\n  |> filter(fn: (r) => r.wheel_side == \"left\")\r\n  |> map(fn: (r) => ({\r\n      r with _value: if r._value then 0 else 1\r\n  }))",
                     "refId": "A"
                 }
             ],
-            "title": "Mode",
-            "type": "marcusolsson-dynamictext-panel"
+            "title": "Control mode",
+            "type": "gauge"
         },
         {
             "datasource": {
@@ -296,7 +332,7 @@
                         "tooltip": "",
                         "type": "slider",
                         "uid": "64940521-39eb-48fd-a80b-9ea452923d13",
-                        "unit": "d/s",
+                        "unit": "°/s",
                         "value": 0
                     }
                 ],
@@ -1255,7 +1291,6 @@
         "to": "now"
     },
     "timepicker": {
-        "hidden": true,
         "refresh_intervals": [
             "1s",
             "5s",
@@ -1272,6 +1307,6 @@
     "timezone": "browser",
     "title": "Robot",
     "uid": "durt7xp",
-    "version": 2,
+    "version": 1,
     "weekStart": ""
 }
