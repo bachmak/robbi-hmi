@@ -13,6 +13,8 @@ class db:
     def token(): return _get_from_env("DB_TOKEN")
     def org(): return _get_from_env("DB_ORG")
     def bucket_robot(): return _get_from_env("DB_BUCKET_ROBOT")
+    def motion_resend_interval(): return float(
+        os.environ.get("DB_MOTION_RESEND_INTERVAL", "10"))
 
 
 class opc_ua:
