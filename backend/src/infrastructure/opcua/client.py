@@ -1,9 +1,9 @@
 from asyncua import Client, ua
 from contextlib import asynccontextmanager
-from config import opc_ua as cfg
+from app.config import opc_ua as cfg
 import asyncio
-from . import node_cfg
-import node_data
+from . import node_config
+from domain import node_data
 import datetime
 
 
@@ -39,7 +39,7 @@ class SubscriptionHandler:
     def datachange_notification(self, node, val, data):
         ts = data.monitored_item.Value.SourceTimestamp
         nd = node_data.NodeData(
-            info=node_cfg.get_node_meta_data(node),
+            info=node_config.get_node_meta_data(node),
             value=val,
             ts=ts,
         )
@@ -57,7 +57,7 @@ async def _poll_node_values(client: Client, nodes, queue: asyncio.Queue):
             for node, val in zip(nodes, values):
                 try:
                     nd = node_data.NodeData(
-                        info=node_cfg.get_node_meta_data(node),
+                        info=node_config.get_node_meta_data(node),
                         value=val,
                         ts=ts,
                     )
@@ -93,7 +93,7 @@ async def _handle_commands(incoming_commands: asyncio.Queue, client: Client):
 
 
 async def _handle_motor_command(cmd, client: Client):
-    builder = node_cfg.NodeWithValueBuilder
+    builder = node_config.NodeWithValueBuilder
     node_info_with_values = [
         builder.left_target_speed(cmd.left_speed),
         builder.right_target_speed(cmd.right_speed),
@@ -113,7 +113,7 @@ async def _handle_motor_command(cmd, client: Client):
 
 
 async def _handle_motor_pwm_override_command(cmd, client: Client):
-    builder = node_cfg.NodeWithValueBuilder
+    builder = node_config.NodeWithValueBuilder
     node_info_with_values = [
         builder.left_pwm_override(cmd.left_pwm),
         builder.right_pwm_override(cmd.right_pwm),
@@ -148,7 +148,7 @@ async def session(incoming_commands: asyncio.Queue, outgoing_commands: asyncio.Q
 
         nodes = [
             client.get_node(node_name)
-            for node_name in node_cfg.get_node_names_to_subscribe()
+            for node_name in node_config.get_node_names_to_subscribe()
         ]
 
         await subs.subscribe_data_change(nodes)

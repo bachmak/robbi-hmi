@@ -1,7 +1,7 @@
 """Robot kinematics calculations for differential drive."""
 
 import math
-from config import robot
+from app.config import robot
 
 
 def calculate_wheel_speeds(v: float, omega: float) -> tuple[float, float]:

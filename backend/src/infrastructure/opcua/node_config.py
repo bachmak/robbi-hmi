@@ -1,7 +1,8 @@
-from attr import dataclass
+from dataclasses import dataclass
+from typing import Any
 
-import node_data
 from asyncua import ua
+from domain import node_data
 
 
 def _idx_to_side(idx):
@@ -60,7 +61,7 @@ def get_node_meta_data(node):
 class NodeWithValue:
     name: str
     variant_type: ua.VariantType
-    value: any = None
+    value: Any = None
 
 
 class NodeWithValueBuilder:

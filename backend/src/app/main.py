@@ -3,9 +3,9 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 
-from db_client import session as db_session
-from opc_ua.client import session as opc_ua_session
-from handlers import router
+from infrastructure.db.client import session as db_session
+from infrastructure.opcua.client import session as opc_ua_session
+from api.routes.commands import router
 
 
 @asynccontextmanager
