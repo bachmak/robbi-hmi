@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Request
 from domain.services.kinematics import calculate_wheel_speeds
 from api.schemas.commands import MotionCommand, PwmOverrideCommand
-from domain.commands import MotorCommand, MotionIntent, MotorPwmOverrideCommand
+from domain.commands import MotorCommand, MotionIntentCmd, MotorPwmOverrideCommand
 
 router = APIRouter()
 
@@ -21,7 +21,7 @@ async def set_motion(cmd: MotionCommand, request: Request):
     )
 
     await request.app.state.to_db.put(
-        MotionIntent(
+        MotionIntentCmd(
             v=cmd.v,
             omega=cmd.omega,
             emergency_stop=cmd.emergency_stop,

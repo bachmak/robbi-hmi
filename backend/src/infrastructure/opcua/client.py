@@ -3,7 +3,7 @@ from contextlib import asynccontextmanager
 from app.config import opc_ua as cfg
 import asyncio
 from . import node_config
-from domain import node_data
+from domain.commands import SaveNodeDataCmd
 import datetime
 
 
@@ -38,12 +38,12 @@ class SubscriptionHandler:
 
     def datachange_notification(self, node, val, data):
         ts = data.monitored_item.Value.SourceTimestamp
-        nd = node_data.NodeData(
+        cmd = SaveNodeDataCmd(
             info=node_config.get_node_meta_data(node),
             value=val,
             ts=ts,
         )
-        asyncio.create_task(self.queue.put(nd))
+        asyncio.create_task(self.queue.put(cmd))
 
 
 async def _poll_node_values(client: Client, nodes, queue: asyncio.Queue):
@@ -56,12 +56,12 @@ async def _poll_node_values(client: Client, nodes, queue: asyncio.Queue):
 
             for node, val in zip(nodes, values):
                 try:
-                    nd = node_data.NodeData(
+                    cmd = SaveNodeDataCmd(
                         info=node_config.get_node_meta_data(node),
                         value=val,
                         ts=ts,
                     )
-                    await queue.put(nd)
+                    await queue.put(cmd)
                 except Exception as e:
                     print(f"Error processing node {node.nodeid}: {e}")
 

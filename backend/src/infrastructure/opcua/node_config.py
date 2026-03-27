@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from typing import Any
 
 from asyncua import ua
-from domain import node_data
+from domain.commands import NodeMetaData
 
 
 def _idx_to_side(idx):
@@ -14,7 +14,7 @@ def _idx_to_side(idx):
 
 
 def _meta_cfg(idx, name):
-    return node_data.NodeMetaData(
+    return NodeMetaData(
         domain_name="wheel_config",
         side=_idx_to_side(idx),
         name=name,
@@ -22,7 +22,7 @@ def _meta_cfg(idx, name):
 
 
 def _meta_state(idx, name):
-    return node_data.NodeMetaData(
+    return NodeMetaData(
         domain_name="wheel_state",
         side=_idx_to_side(idx),
         name=name,

@@ -1,74 +1,46 @@
 from app.config import db as cfg
-from influxdb_client import Point
 from influxdb_client.client.influxdb_client_async import InfluxDBClientAsync
 import asyncio
-from domain.node_data import NodeData
-from domain.commands import MotionIntent
-from infrastructure.db.queries import query_last_motion_intent
+from . import tasks
+from domain.commands import MotionIntentCmd, SaveNodeDataCmd
+from .command_handlers import handle_motion_intent_cmd, handle_save_node_data_cmd
 
 
-async def _write_node_data(write_api, nd: NodeData):
-    record = (
-        Point(nd.info.domain_name)
-        .tag("wheel_side", nd.info.side)
-        .field(nd.info.name, nd.value)
-        # TODO: Include timestamp from OPC UA
-        # .time(nd.ts)
-    )
-    await write_api.write(bucket=cfg.bucket_robot(), record=record)
-
-
-async def _write_motion_intent(write_api, intent: MotionIntent):
-    record = (
-        Point("motion_intent")
-        .field("v", intent.v)
-        .field("omega", intent.omega)
-        .field("emergency_stop", intent.emergency_stop)
-    )
-    await write_api.write(bucket=cfg.bucket_robot(), record=record)
-
-
-async def _resend_last_motion_intent(write_api, last_intent):
-    """Periodically re-write the last motion intent with current timestamp."""
-    resend_interval = cfg.motion_resend_interval()
+async def _handle_commands(client: InfluxDBClientAsync, incoming_commands: asyncio.Queue):
+    command_handlers = {
+        MotionIntentCmd: lambda cmd: handle_motion_intent_cmd(cmd, client.write_api()),
+        SaveNodeDataCmd: lambda cmd: handle_save_node_data_cmd(cmd, client.write_api()),
+    }
 
     while True:
-        await asyncio.sleep(resend_interval)
+        try:
+            cmd = await incoming_commands.get()
+            handler = command_handlers.get(type(cmd))
+            if handler:
+                await handler(cmd)
+            else:
+                print(f"Unknown command: {cmd}")
 
-        if last_intent[0] is not None:
-            try:
-                await _write_motion_intent(write_api, last_intent[0])
-                print(
-                    f"Re-wrote motion intent to DB: v={last_intent[0].v}, omega={last_intent[0].omega}")
-            except Exception as e:
-                print(f"Error re-writing motion intent: {e}")
+        except Exception as e:
+            print(f"Error handling command {cmd}: {e}")
 
 
-async def session(incoming: asyncio.Queue):
+def _spawn_tasks(client: InfluxDBClientAsync):
+    write_api = client.write_api()
+    query_api = client.query_api()
+
+    asyncio.create_task(tasks.resend_last_motion_intent(
+        interval=cfg.motion_resend_interval(),
+        write_api=write_api,
+        query_api=query_api,
+    ))
+
+
+async def session(incoming_commands: asyncio.Queue):
     async with InfluxDBClientAsync(
         url=cfg.url(),
         token=cfg.token(),
         org=cfg.org(),
     ) as client:
-        write_api = client.write_api()
-        query_api = client.query_api()
-
-        # Use a mutable container so the resend task sees updates
-        last_intent = [None]
-
-        initial_intent = await query_last_motion_intent(query_api)
-        if initial_intent:
-            last_intent[0] = initial_intent
-
-        asyncio.create_task(_resend_last_motion_intent(write_api, last_intent))
-
-        while True:
-            event = await incoming.get()
-
-            if isinstance(event, NodeData):
-                await _write_node_data(write_api, event)
-            elif isinstance(event, MotionIntent):
-                last_intent[0] = event
-                await _write_motion_intent(write_api, event)
-            else:
-                print(f"Unknown event type: {type(event)}")
+        _spawn_tasks(client)
+        await _handle_commands(client, incoming_commands)

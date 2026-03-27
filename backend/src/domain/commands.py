@@ -1,5 +1,5 @@
-"""Internal command and event models shared across subsystems."""
-
+import datetime
+from typing import Any
 from pydantic import BaseModel
 from typing import Optional
 
@@ -24,7 +24,23 @@ class MotorPwmOverrideCommand(Command):
     right_pwm: float
 
 
-class MotionIntent(BaseModel):
+class MotionIntentCmd(BaseModel):
     v: float
     omega: float
     emergency_stop: Optional[bool] = False
+
+
+class ResendLastMotionIntentCmd(BaseModel):
+    pass
+
+
+class NodeMetaData(BaseModel):
+    domain_name: str
+    side: str
+    name: str
+
+
+class SaveNodeDataCmd(BaseModel):
+    info: NodeMetaData
+    value: Any
+    ts: datetime.datetime

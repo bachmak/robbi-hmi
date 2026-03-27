@@ -1,8 +1,8 @@
 from app.config import db as cfg
-from domain.commands import MotionIntent
+from domain.commands import MotionIntentCmd
 
 
-async def query_last_motion_intent(query_api) -> MotionIntent | None:
+async def query_last_motion_intent(query_api) -> MotionIntentCmd | None:
     try:
         query = f'''
             from(bucket: "{cfg.bucket_robot()}")
@@ -19,7 +19,7 @@ async def query_last_motion_intent(query_api) -> MotionIntent | None:
 
         for table in tables:
             for record in table.records:
-                return MotionIntent(
+                return MotionIntentCmd(
                     v=float(record["v"]),
                     omega=float(record["omega"]),
                     emergency_stop=bool(record["emergency_stop"]),
