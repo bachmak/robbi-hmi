@@ -11,8 +11,6 @@ async def resend_last_motion_intent(
     query_api: QueryApiAsync,
 ):
     while True:
-        await asyncio.sleep(interval)
-
         try:
             await handle_resend_last_motion_intent_cmd(
                 ResendLastMotionIntentCmd(),
@@ -21,3 +19,5 @@ async def resend_last_motion_intent(
             )
         except Exception as e:
             print(f"Error re-writing motion intent: {e}")
+
+        await asyncio.sleep(interval)

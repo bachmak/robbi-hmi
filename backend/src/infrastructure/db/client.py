@@ -42,5 +42,7 @@ async def session(incoming_commands: asyncio.Queue):
         token=cfg.token(),
         org=cfg.org(),
     ) as client:
+        print("Connected to InfluxDB")
+
         _spawn_tasks(client)
         await _handle_commands(client, incoming_commands)
