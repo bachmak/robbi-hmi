@@ -29,7 +29,7 @@ def _meta_state(idx, name):
     )
 
 
-def _get_nodes_by_idx(idx):
+def _get_leave_nodes_by_idx(idx):
     return {
         f'ns=3;s="DB_Robot"."MotorControls"[{idx}]."Kp"': _meta_cfg(idx, "p_coefficient"),
         f'ns=3;s="DB_Robot"."MotorControls"[{idx}]."TargetSpeed"': _meta_state(idx, "target_speed"),
@@ -46,15 +46,15 @@ def _get_nodes_by_idx(idx):
     }
 
 
-_nodes = _get_nodes_by_idx(0) | _get_nodes_by_idx(1)
+_leave_nodes = _get_leave_nodes_by_idx(0) | _get_leave_nodes_by_idx(1)
 
 
-def get_node_names_to_subscribe():
-    return _nodes.keys()
+def get_leave_node_names():
+    return _leave_nodes.keys()
 
 
-def get_node_meta_data(node):
-    return _nodes[node.nodeid.to_string()]
+def get_leave_node_meta_data(node):
+    return _leave_nodes[node.nodeid.to_string()]
 
 
 @dataclass
