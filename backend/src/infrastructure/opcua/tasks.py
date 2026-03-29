@@ -1,7 +1,6 @@
 import logging
 from asyncua import Client
 import asyncio
-import datetime
 from domain.commands import SaveNodeDataCmd
 from . import node_config
 
@@ -21,13 +20,11 @@ async def save_leave_node_values(
     while True:
         try:
             values = await client.read_values(nodes)
-            ts = datetime.datetime.now(datetime.timezone.utc)
 
             for node, val in zip(nodes, values):
                 cmd = SaveNodeDataCmd(
                     info=node_config.get_leave_node_meta_data(node),
                     value=val,
-                    ts=ts,
                 )
                 await queue.put(cmd)
 

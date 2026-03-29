@@ -12,11 +12,9 @@ class _SubscriptionHandler:
         self.queue = queue
 
     def datachange_notification(self, node, val, data):
-        ts = data.monitored_item.Value.SourceTimestamp
         cmd = SaveNodeDataCmd(
             info=node_config.get_leave_node_meta_data(node),
             value=val,
-            ts=ts,
         )
         asyncio.create_task(self.queue.put(cmd))
 

@@ -6,7 +6,7 @@ import asyncio
 from .subscriptions import subscribe_to_leave_node_updates
 from .tasks import save_leave_node_values
 from .command_handlers import handle_motor_command, handle_motor_pwm_override_command
-from domain.commands import MotorCommand, MotorPwmOverrideCommand
+from domain.commands import MotorCmd, MotorPwmOverrideCmd
 
 logger = logging.getLogger(__name__)
 
@@ -59,8 +59,8 @@ async def _handle_commands(
     incoming_commands: asyncio.Queue,
 ):
     command_handlers = {
-        MotorCommand: lambda cmd: handle_motor_command(cmd, client),
-        MotorPwmOverrideCommand: lambda cmd: handle_motor_pwm_override_command(cmd, client),
+        MotorCmd: lambda cmd: handle_motor_command(cmd, client),
+        MotorPwmOverrideCmd: lambda cmd: handle_motor_pwm_override_command(cmd, client),
     }
 
     while True:

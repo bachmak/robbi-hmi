@@ -1,25 +1,16 @@
-import datetime
-from typing import Any
+from typing import Any, Optional
 from pydantic import BaseModel
-from typing import Optional
 
 
-class Command(BaseModel):
-    """Base class for internal commands."""
-    type: str
-
-
-class MotorCommand(Command):
+class MotorCmd(BaseModel):
     """Internal command for OPC UA motor control."""
-    type: str = "motor"
     left_speed: float
     right_speed: float
     emergency_stop: Optional[bool] = False
 
 
-class MotorPwmOverrideCommand(Command):
+class MotorPwmOverrideCmd(BaseModel):
     """Internal command for OPC UA PWM override control."""
-    type: str = "motor_pwm_override"
     left_pwm: float
     right_pwm: float
 
@@ -43,4 +34,3 @@ class NodeMetaData(BaseModel):
 class SaveNodeDataCmd(BaseModel):
     info: NodeMetaData
     value: Any
-    ts: datetime.datetime

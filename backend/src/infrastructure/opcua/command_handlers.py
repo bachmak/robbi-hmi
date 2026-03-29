@@ -1,13 +1,13 @@
 import logging
 from asyncua import Client, ua
 from . import node_config
-from domain.commands import MotorCommand, MotorPwmOverrideCommand
+from domain.commands import MotorCmd, MotorPwmOverrideCmd
 
 logger = logging.getLogger(__name__)
 
 
 async def handle_motor_command(
-    cmd: MotorCommand,
+    cmd: MotorCmd,
     client: Client,
 ):
     builder = node_config.NodeWithValueBuilder
@@ -34,7 +34,7 @@ async def handle_motor_command(
 
 
 async def handle_motor_pwm_override_command(
-    cmd: MotorPwmOverrideCommand,
+    cmd: MotorPwmOverrideCmd,
     client: Client,
 ):
     builder = node_config.NodeWithValueBuilder
