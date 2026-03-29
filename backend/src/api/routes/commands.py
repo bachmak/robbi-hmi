@@ -1,3 +1,5 @@
+"""HTTP endpoints that handle API requests into internal command messages."""
+
 import logging
 from fastapi import APIRouter, Request
 from domain.services.kinematics import calculate_wheel_speeds

@@ -1,3 +1,5 @@
+"""Command handlers that persist data to InfluxDB."""
+
 import logging
 from influxdb_client import Point
 from app.config import db as cfg

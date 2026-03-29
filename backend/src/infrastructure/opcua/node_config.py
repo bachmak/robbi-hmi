@@ -1,3 +1,5 @@
+"""OPC UA node catalog and typed builders for wheel telemetry and command nodes."""
+
 from dataclasses import dataclass
 from typing import Any
 

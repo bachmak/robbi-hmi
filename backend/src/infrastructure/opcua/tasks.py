@@ -1,3 +1,5 @@
+"""Polling tasks that sample OPC UA node values and enqueue telemetry commands."""
+
 import logging
 from asyncua import Client
 import asyncio
@@ -12,7 +14,9 @@ async def save_leave_node_values(
     client: Client,
     queue: asyncio.Queue,
 ):
-    """Periodically poll tracked PLC nodes and forward the samples to the DB queue."""
+    """Periodically poll tracked PLC nodes and forward the samples to the DB queue.
+      This is a simple workaround to ensure there is data to show in the UI even
+      if OPC UA values only change sporadically."""
     nodes = [
         client.get_node(node_name)
         for node_name in node_config.get_leave_node_names()

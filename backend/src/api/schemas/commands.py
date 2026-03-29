@@ -1,3 +1,5 @@
+"""Schemas for command payloads accepted by the HTTP API."""
+
 from pydantic import BaseModel
 from typing import Optional
 

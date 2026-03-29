@@ -1,3 +1,5 @@
+"""Centralized runtime configuration loaded from environment variables."""
+
 import os
 
 

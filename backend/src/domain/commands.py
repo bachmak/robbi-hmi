@@ -1,3 +1,5 @@
+"""Domain command models passed between API, OPC UA, and database layers."""
+
 from typing import Any, Optional
 from pydantic import BaseModel
 

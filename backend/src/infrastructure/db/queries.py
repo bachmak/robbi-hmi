@@ -1,3 +1,5 @@
+"""Read-side helpers for reconstructing domain data from InfluxDB results."""
+
 import logging
 from app.config import db as cfg
 from domain.commands import MotionIntentCmd

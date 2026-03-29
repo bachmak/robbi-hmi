@@ -1,3 +1,5 @@
+"""OPC UA session loop that connects, subscribes, polls, and executes motor commands."""
+
 import logging
 from asyncua import Client
 from contextlib import asynccontextmanager

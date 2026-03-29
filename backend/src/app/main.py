@@ -1,3 +1,5 @@
+"""FastAPI entrypoint that wires API routes to OPC UA and DB worker sessions."""
+
 import asyncio
 import logging
 from fastapi import FastAPI

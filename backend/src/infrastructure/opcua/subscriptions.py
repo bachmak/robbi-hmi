@@ -1,3 +1,5 @@
+"""Subscription bridge that forwards OPC UA data changes into internal commands."""
+
 import logging
 from asyncua import Client
 import asyncio

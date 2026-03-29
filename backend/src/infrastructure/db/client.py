@@ -1,3 +1,5 @@
+"""InfluxDB session loop that consumes queued commands and runs DB background tasks."""
+
 import logging
 from app.config import db as cfg
 from influxdb_client.client.influxdb_client_async import InfluxDBClientAsync

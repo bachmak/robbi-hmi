@@ -1,3 +1,5 @@
+"""Writers that map internal motor commands into typed OPC UA node updates."""
+
 import logging
 from asyncua import Client, ua
 from . import node_config

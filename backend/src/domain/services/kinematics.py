@@ -1,4 +1,4 @@
-"""Robot kinematics calculations for differential drive."""
+"""Domain math helpers."""
 
 import math
 from app.config import robot

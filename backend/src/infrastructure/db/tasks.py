@@ -1,3 +1,5 @@
+"""Background DB tasks that run periodically."""
+
 import logging
 from influxdb_client.client.influxdb_client_async import WriteApiAsync, QueryApiAsync
 import asyncio
