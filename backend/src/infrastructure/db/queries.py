@@ -1,5 +1,8 @@
+import logging
 from app.config import db as cfg
 from domain.commands import MotionIntentCmd
+
+logger = logging.getLogger(__name__)
 
 
 async def query_last_motion_intent(query_api) -> MotionIntentCmd | None:
@@ -24,7 +27,7 @@ async def query_last_motion_intent(query_api) -> MotionIntentCmd | None:
                     omega=float(record["omega"]),
                     emergency_stop=bool(record["emergency_stop"]),
                 )
-    except Exception as e:
-        print(f"Error querying last motion intent: {e}")
+    except Exception:
+        logger.exception("Error querying last motion intent")
 
     return None

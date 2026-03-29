@@ -1,4 +1,5 @@
 import asyncio
+import logging
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
@@ -7,10 +8,17 @@ from infrastructure.db.client import session as db_session
 from infrastructure.opcua.client import session as opc_ua_session
 from api.routes.commands import router
 
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s %(levelname)s %(name)s - %(message)s",
+)
+
+logger = logging.getLogger(__name__)
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    print("Starting background tasks...")
+    logger.info("Starting background tasks...")
 
     app.state.to_opc_ua = asyncio.Queue()
     app.state.to_db = asyncio.Queue()
@@ -25,7 +33,7 @@ async def lifespan(app: FastAPI):
 
     yield
 
-    print("Shutting down...")
+    logger.info("Shutting down...")
 
     for task in tasks:
         task.cancel()

@@ -1,9 +1,11 @@
+import logging
 from asyncua import Client
-from asyncua.common.node import Node
 import asyncio
 import datetime
 from domain.commands import SaveNodeDataCmd
 from . import node_config
+
+logger = logging.getLogger(__name__)
 
 
 async def save_leave_node_values(
@@ -29,7 +31,7 @@ async def save_leave_node_values(
                 )
                 await queue.put(cmd)
 
-        except Exception as e:
-            print(f"Error saving node values: {e}")
+        except Exception:
+            logger.exception("Error saving node values")
 
         await asyncio.sleep(interval)

@@ -1,8 +1,11 @@
+import logging
 from influxdb_client import Point
 from app.config import db as cfg
 from domain.commands import SaveNodeDataCmd, MotionIntentCmd, ResendLastMotionIntentCmd
 from influxdb_client.client.influxdb_client_async import WriteApiAsync, QueryApiAsync
 from . import queries
+
+logger = logging.getLogger(__name__)
 
 
 async def handle_save_node_data_cmd(
@@ -41,4 +44,4 @@ async def handle_resend_last_motion_intent_cmd(
     if intent:
         await handle_motion_intent_cmd(intent, write_api)
     else:
-        print("No initial motion intent found in DB.")
+        logger.warning("No initial motion intent found in DB.")

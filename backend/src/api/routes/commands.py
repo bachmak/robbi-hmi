@@ -1,14 +1,17 @@
+import logging
 from fastapi import APIRouter, Request
 from domain.services.kinematics import calculate_wheel_speeds
 from api.schemas.commands import MotionCommand, PwmOverrideCommand
 from domain.commands import MotorCommand, MotionIntentCmd, MotorPwmOverrideCommand
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
 
 @router.post("/command/motion")
 async def set_motion(cmd: MotionCommand, request: Request):
-    print(f"Received motion command: {cmd}")
+    logger.info("Received motion command: %s", cmd)
 
     left_speed, right_speed = calculate_wheel_speeds(cmd.v, cmd.omega)
 
@@ -33,7 +36,7 @@ async def set_motion(cmd: MotionCommand, request: Request):
 
 @router.post("/command/pwm_override")
 async def set_pwm_override(cmd: PwmOverrideCommand, request: Request):
-    print(f"Received PWM override command: {cmd}")
+    logger.info("Received PWM override command: %s", cmd)
 
     await request.app.state.to_opc_ua.put(
         MotorPwmOverrideCommand(

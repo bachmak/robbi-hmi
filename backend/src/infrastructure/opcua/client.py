@@ -1,3 +1,4 @@
+import logging
 from asyncua import Client
 from contextlib import asynccontextmanager
 from app.config import opc_ua as cfg
@@ -7,6 +8,8 @@ from .tasks import save_leave_node_values
 from .command_handlers import handle_motor_command, handle_motor_pwm_override_command
 from domain.commands import MotorCommand, MotorPwmOverrideCommand
 
+logger = logging.getLogger(__name__)
+
 
 @asynccontextmanager
 async def _get_connected_client(urls):
@@ -14,12 +17,12 @@ async def _get_connected_client(urls):
     for url in urls:
         client = Client(url)
         try:
-            print(f"Connecting to OPC UA server at {url}...")
+            logger.info("Connecting to OPC UA server at %s...", url)
             await client.connect()
-            print(f"Connected")
+            logger.info("Connected to OPC UA server at %s", url)
             break
         except Exception as e:
-            print(f"Failed to connect: {e}")
+            logger.info("Failed to connect to %s: %s", url, e)
             client = None
     if client is None:
         raise ConnectionError(
@@ -30,7 +33,7 @@ async def _get_connected_client(urls):
     finally:
         if client:
             await client.disconnect()
-            print("Disconnected from OPC UA server")
+            logger.info("Disconnected from OPC UA server")
 
 
 async def _init_subscriptions(
@@ -67,20 +70,18 @@ async def _handle_commands(
             if handler:
                 await handler(cmd)
             else:
-                print(f"Unknown command: {cmd}")
+                logger.warning("Unknown command: %s", cmd)
 
-        except Exception as e:
-            print(f"Error handling command: {e}")
+        except Exception:
+            logger.exception("Error handling command")
 
 
 async def session(incoming_commands: asyncio.Queue, outgoing_commands: asyncio.Queue):
-    print("Connecting to OPC UA Server...")
-
     async with _get_connected_client([
         cfg.url(),
         cfg.url_fallback(),
     ]) as client:
-        print("Connected to OPC UA Server")
+        logger.info("Connected to OPC UA Server")
 
         await _init_subscriptions(client, outgoing_commands)
         _spawn_tasks(client, outgoing_commands)

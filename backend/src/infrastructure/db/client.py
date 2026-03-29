@@ -1,9 +1,12 @@
+import logging
 from app.config import db as cfg
 from influxdb_client.client.influxdb_client_async import InfluxDBClientAsync
 import asyncio
 from . import tasks
 from domain.commands import MotionIntentCmd, SaveNodeDataCmd
 from .command_handlers import handle_motion_intent_cmd, handle_save_node_data_cmd
+
+logger = logging.getLogger(__name__)
 
 
 async def _handle_commands(client: InfluxDBClientAsync, incoming_commands: asyncio.Queue):
@@ -19,10 +22,10 @@ async def _handle_commands(client: InfluxDBClientAsync, incoming_commands: async
             if handler:
                 await handler(cmd)
             else:
-                print(f"Unknown command: {cmd}")
+                logger.warning("Unknown command: %s", cmd)
 
         except Exception as e:
-            print(f"Error handling command {cmd}: {e}")
+            logger.exception("Error handling command %s", cmd)
 
 
 def _spawn_tasks(client: InfluxDBClientAsync):
@@ -42,7 +45,7 @@ async def session(incoming_commands: asyncio.Queue):
         token=cfg.token(),
         org=cfg.org(),
     ) as client:
-        print("Connected to InfluxDB")
+        logger.info("Connected to InfluxDB")
 
         _spawn_tasks(client)
         await _handle_commands(client, incoming_commands)

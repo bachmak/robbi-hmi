@@ -1,8 +1,11 @@
+import logging
 from influxdb_client.client.influxdb_client_async import WriteApiAsync, QueryApiAsync
 import asyncio
 
 from domain.commands import ResendLastMotionIntentCmd
 from .command_handlers import handle_resend_last_motion_intent_cmd
+
+logger = logging.getLogger(__name__)
 
 
 async def resend_last_motion_intent(
@@ -17,7 +20,7 @@ async def resend_last_motion_intent(
                 query_api,
                 write_api
             )
-        except Exception as e:
-            print(f"Error re-writing motion intent: {e}")
+        except Exception:
+            logger.exception("Error re-writing motion intent")
 
         await asyncio.sleep(interval)
