@@ -81,8 +81,6 @@ async def session(incoming_commands: asyncio.Queue, outgoing_commands: asyncio.Q
         cfg.url(),
         cfg.url_fallback(),
     ]) as client:
-        logger.info("Connected to OPC UA Server")
-
         await _init_subscriptions(client, outgoing_commands)
         _spawn_tasks(client, outgoing_commands)
         await _handle_commands(client, incoming_commands)

@@ -1,6 +1,9 @@
+import logging
 from asyncua import Client, ua
 from . import node_config
 from domain.commands import MotorCommand, MotorPwmOverrideCommand
+
+logger = logging.getLogger(__name__)
 
 
 async def handle_motor_command(
@@ -23,6 +26,10 @@ async def handle_motor_command(
         ua.DataValue(ua.Variant(n.value, n.variant_type))
         for n in node_info_with_values
     ]
+    logger.debug(
+        "Writing motor command: left_speed=%.2f, right_speed=%.2f, e_stop=%s",
+        cmd.left_speed, cmd.right_speed, cmd.emergency_stop,
+    )
     await client.write_values(nodes, values_to_write)
 
 
@@ -44,4 +51,8 @@ async def handle_motor_pwm_override_command(
         ua.DataValue(ua.Variant(n.value, n.variant_type))
         for n in node_info_with_values
     ]
+    logger.debug(
+        "Writing PWM override: left_pwm=%.2f, right_pwm=%.2f",
+        cmd.left_pwm, cmd.right_pwm,
+    )
     await client.write_values(nodes, values_to_write)

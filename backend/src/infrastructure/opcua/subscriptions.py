@@ -1,7 +1,10 @@
+import logging
 from asyncua import Client
 import asyncio
 from domain.commands import SaveNodeDataCmd
 from . import node_config
+
+logger = logging.getLogger(__name__)
 
 
 class _SubscriptionHandler:
@@ -34,3 +37,4 @@ async def subscribe_to_leave_node_updates(
     ]
 
     await subs.subscribe_data_change(nodes)
+    logger.info("Subscribed to %d OPC UA nodes", len(nodes))
