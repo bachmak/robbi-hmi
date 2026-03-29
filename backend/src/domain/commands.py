@@ -3,34 +3,38 @@ from pydantic import BaseModel
 
 
 class MotorCmd(BaseModel):
-    """Internal command for OPC UA motor control."""
+    """Wheel speed setpoint sent to the OPC UA layer."""
     left_speed: float
     right_speed: float
     emergency_stop: Optional[bool] = False
 
 
 class MotorPwmOverrideCmd(BaseModel):
-    """Internal command for OPC UA PWM override control."""
+    """Direct wheel PWM values sent to the OPC UA layer."""
     left_pwm: float
     right_pwm: float
 
 
 class MotionIntentCmd(BaseModel):
+    """Requested robot motion stored for replay and observability."""
     v: float
     omega: float
     emergency_stop: Optional[bool] = False
 
 
 class ResendLastMotionIntentCmd(BaseModel):
+    """Marker command that republishes the latest stored motion intent."""
     pass
 
 
 class NodeMetaData(BaseModel):
+    """Measurement and field metadata associated with a sampled node."""
     domain_name: str
     side: str
     name: str
 
 
 class SaveNodeDataCmd(BaseModel):
+    """Write a node sample to the time-series database."""
     info: NodeMetaData
     value: Any

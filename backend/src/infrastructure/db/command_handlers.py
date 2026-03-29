@@ -16,8 +16,6 @@ async def handle_save_node_data_cmd(
         Point(command.info.domain_name)
         .tag("wheel_side", command.info.side)
         .field(command.info.name, command.value)
-        # TODO: Include timestamp from OPC UA
-        # .time(command.ts)
     )
     await write_api.write(bucket=cfg.bucket_robot(), record=record)
 

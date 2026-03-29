@@ -15,6 +15,7 @@ async def set_motion(cmd: MotionCommand, request: Request):
 
     left_speed, right_speed = calculate_wheel_speeds(cmd.v, cmd.omega)
 
+    # The same intent is sent to the robot and persisted so it can be displayed after relaunch.
     await request.app.state.to_opc_ua.put(
         MotorCmd(
             left_speed=left_speed,

@@ -13,6 +13,7 @@ async def resend_last_motion_intent(
     write_api: WriteApiAsync,
     query_api: QueryApiAsync,
 ):
+    """Re-publish the last requested motion so the HMI can observe the current state at any time."""
     while True:
         try:
             await handle_resend_last_motion_intent_cmd(

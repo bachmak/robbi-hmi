@@ -24,6 +24,7 @@ class opc_ua:
 
 
 class robot:
+    # Geometry is expressed in meters and used to convert motion intent into wheel speeds.
     def left_wheel_radius(): return 0.05
     def right_wheel_radius(): return 0.05
     def wheelbase(): return 0.15

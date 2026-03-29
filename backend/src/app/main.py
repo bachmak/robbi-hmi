@@ -20,6 +20,7 @@ logger = logging.getLogger(__name__)
 async def lifespan(app: FastAPI):
     logger.info("Starting background tasks...")
 
+    # These queues decouple the HTTP layer from the long-running OPC UA and DB workers.
     app.state.to_opc_ua = asyncio.Queue()
     app.state.to_db = asyncio.Queue()
 

@@ -12,6 +12,7 @@ async def save_leave_node_values(
     client: Client,
     queue: asyncio.Queue,
 ):
+    """Periodically poll tracked PLC nodes and forward the samples to the DB queue."""
     nodes = [
         client.get_node(node_name)
         for node_name in node_config.get_leave_node_names()

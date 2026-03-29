@@ -22,6 +22,7 @@ async def query_last_motion_intent(query_api) -> MotionIntentCmd | None:
 
         for table in tables:
             for record in table.records:
+                # The Flux pivot turns the last field rows into one record we can map back to a command.
                 return MotionIntentCmd(
                     v=float(record["v"]),
                     omega=float(record["omega"]),

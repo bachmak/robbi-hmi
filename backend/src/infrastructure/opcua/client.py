@@ -13,6 +13,7 @@ logger = logging.getLogger(__name__)
 
 @asynccontextmanager
 async def _get_connected_client(urls):
+    """Connect to the first reachable OPC UA endpoint from the configured URL list."""
     client = None
     for url in urls:
         client = Client(url)
@@ -47,6 +48,7 @@ def _spawn_tasks(
     client: Client,
     outgoing_commands: asyncio.Queue,
 ):
+    # Polling complements subscriptions and keeps the DB fed even if updates are sparse.
     asyncio.create_task(save_leave_node_values(
         cfg.poll_interval(),
         client,
@@ -81,6 +83,7 @@ async def session(incoming_commands: asyncio.Queue, outgoing_commands: asyncio.Q
         cfg.url(),
         cfg.url_fallback(),
     ]) as client:
+        # Subscriptions push changes immediately; polling provides periodic snapshots.
         await _init_subscriptions(client, outgoing_commands)
         _spawn_tasks(client, outgoing_commands)
         await _handle_commands(client, incoming_commands)

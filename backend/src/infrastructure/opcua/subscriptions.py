@@ -16,6 +16,7 @@ class _SubscriptionHandler:
             info=node_config.get_leave_node_meta_data(node),
             value=val,
         )
+        # The asyncua callback is synchronous, so queue writes need to be scheduled.
         asyncio.create_task(self.queue.put(cmd))
 
 

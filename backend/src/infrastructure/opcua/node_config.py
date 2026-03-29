@@ -65,6 +65,7 @@ class NodeWithValue:
 
 
 class NodeWithValueBuilder:
+    """Create typed write payloads for PLC nodes that accept commands from the app."""
     def left_target_speed(value: float):
         return NodeWithValue(f'ns=3;s="DB_Robot"."MotorControls"[0]."TargetSpeed"', ua.VariantType.Float, value)
 
