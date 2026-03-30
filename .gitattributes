@@ -1,0 +1,2 @@
+# force LF for shell scripts
+db/influxdb-init/*.sh text eol=lf
