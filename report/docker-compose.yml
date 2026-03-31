@@ -1,7 +1,16 @@
 services:
+  drawio-export:
+    image: rlespinasse/drawio-export
+    volumes:
+      - .:/data
+    command: --format png --output /data/.export /data/diagrams
+
   latex:
     image: texlive/texlive
     volumes:
-      - ../:/data
-    working_dir: /data/report
-    command: sh -c "mkdir -p /data/.out && pdflatex -output-directory /data/.out report.tex"
+      - .:/data
+    working_dir: /data
+    command: pdflatex -output-directory /data/.export report.tex
+    depends_on:
+      drawio-export:
+        condition: service_completed_successfully
