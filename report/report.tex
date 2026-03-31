@@ -35,39 +35,233 @@
 
 \section{Introduction}
 
+This project aims to develop a PLC-connected dashboard system as part of the lecture ``IoT \& MES''. The goal is to design a modular architecture that enables monitoring and control of a simulated system using modern tools and technologies.
+
+The implemented system simulates a robotic vehicle with two independently controlled motors representing the left and right wheels. Instead of implementing complex motion logic directly on the PLC, the system separates responsibilities across different components.
+
+A Python-based backend is used as an intermediary layer between the PLC, database, and dashboard. This design allows flexible data processing and avoids reliance on visual programming tools such as Node-RED. The overall system emphasizes modularity, decoupling, and reproducibility through containerization.
+
 \section{System Overview}
+
 \subsection{Architecture}
+
+The system consists of the following main components:
+
+\begin{itemize}
+    \item PLC simulated using TIA Portal and PLCSIM
+    \item Python backend acting as communication layer
+    \item InfluxDB as time-series database
+    \item Grafana for visualization and user interaction
+    \item Docker for containerized deployment (except PLC)
+\end{itemize}
+
+The PLC is responsible for simulating the machine behavior, while Python handles communication and data processing. The database and dashboard are fully decoupled from the PLC.
+
 \subsection{Data Flow}
 
+The system follows a clearly defined data flow:
+
+\begin{itemize}
+    \item The PLC exposes process variables via OPC UA
+    \item Python reads these values and stores them in InfluxDB
+    \item Grafana retrieves data from InfluxDB for visualization
+    \item User interactions in Grafana are sent to Python
+    \item Python processes the requests and writes values back to the PLC
+\end{itemize}
+
+Each component only interacts with the Python backend, ensuring loose coupling and a modular architecture.
+
 \section{PLC Implementation}
+
 \subsection{Simulation Model}
+
+The PLC simulates a simple system consisting of two motors:
+
+\begin{itemize}
+    \item Left motor
+    \item Right motor
+\end{itemize}
+
+Each motor is represented by variables such as rotational speed and basic state information. The simulation does not include physical modeling but focuses on data representation and controllability.
+
 \subsection{Data Structures}
+
+The PLC program uses structured data to represent the system:
+
+\begin{itemize}
+    \item Arrays for grouping motor-related values
+    \item Structured data types for system states
+\end{itemize}
+
+This fulfills the requirement of using different data structures and improves scalability of the system.
+
 \subsection{Control Logic}
 
+The PLC handles only low-level control logic:
+
+\begin{itemize}
+    \item Each motor receives a rotational speed value
+\end{itemize}
+
+Higher-level motion parameters such as linear or angular velocity are not computed in the PLC. This separation keeps the PLC logic simple and shifts more complex calculations to the backend.
+
 \section{Communication Interface}
+
 \subsection{OPC UA Setup}
+
+Communication between the PLC and Python is implemented using OPC UA. The PLC exposes its variables via an OPC UA server, which allows external clients to read and write data.
+
+OPC UA was chosen due to its platform independence, standardization, and compatibility with industrial systems.
+
 \subsection{Python Middleware}
+
+The Python backend is the central communication layer of the system. Its responsibilities include:
+
+\begin{itemize}
+    \item Connecting to the PLC via OPC UA
+    \item Reading process data
+    \item Writing control values back to the PLC
+    \item Processing user input from the dashboard
+    \item Forwarding data to the database
+\end{itemize}
+
+Additionally, Python computes motor speed values based on higher-level inputs, such as desired motion parameters.
+
 \subsection{Design Decisions}
 
+A key design decision was to avoid Node-RED and instead implement the logic in Python. This provides:
+
+\begin{itemize}
+    \item Greater flexibility
+    \item Better control over logic and data processing
+    \item Easier extensibility
+\end{itemize}
+
+The architecture focuses on clear separation of concerns and minimal direct dependencies between components.
+
 \section{Data Storage}
+
 \subsection{Database Choice}
+
+InfluxDB was selected as the database due to its specialization in time-series data. It is well-suited for storing continuously changing process variables.
+
 \subsection{Data Model}
 
+The stored data includes:
+
+\begin{itemize}
+    \item Motor speeds
+    \item System states
+\end{itemize}
+
+Each data point is timestamped, enabling historical analysis and visualization in Grafana.
+
 \section{Dashboard}
+
 \subsection{Grafana Setup}
+
+Grafana is connected to InfluxDB as its data source. It retrieves stored values and presents them in real time.
+
 \subsection{Visualization}
+
+The dashboard includes:
+
+\begin{itemize}
+    \item Time-series plots of motor speeds
+    \item Status indicators
+\end{itemize}
+
+This allows users to monitor system behavior effectively.
+
 \subsection{Interaction}
 
+User interaction is implemented indirectly:
+
+\begin{itemize}
+    \item Inputs in Grafana are sent to the Python backend
+    \item Python processes these inputs
+    \item The PLC is updated accordingly
+\end{itemize}
+
+This ensures that Grafana does not directly access the PLC.
+
 \section{Deployment}
+
 \subsection{Docker Architecture}
+
+The following components are containerized:
+
+\begin{itemize}
+    \item Python backend
+    \item InfluxDB
+    \item Grafana
+\end{itemize}
+
+This simplifies deployment and ensures consistent environments.
+
 \subsection{Setup Strategy}
+
+Docker allows:
+
+\begin{itemize}
+    \item Easy setup
+    \item Reproducibility
+    \item Isolation of components
+\end{itemize}
+
+All services can be started using a single configuration.
+
 \subsection{VM and Host Setup}
+
+The PLC environment (TIA Portal and PLCSIM) runs inside a virtual machine, while Docker containers run on the host system.
+
+This setup separates engineering tools from runtime services.
+
 \subsection{Alternative Deployment Strategies}
+
+Different deployment strategies were evaluated:
+
+\begin{itemize}
+    \item Running all components on the host system
+    \item Running all components inside a virtual machine
+\end{itemize}
+
+Each approach has trade-offs regarding networking, performance, and complexity. The chosen hybrid setup provides a good balance between usability and stability.
 
 \section{Setup Guide}
 
+To run the system:
+
+\begin{enumerate}
+    \item Open the TIA Portal project
+    \item Start PLCSIM and load the PLC program
+    \item Start the Docker containers
+    \item Run the Python backend
+    \item Open Grafana in a web browser
+\end{enumerate}
+
+After these steps, the system should be fully operational.
+
 \section{Results and Discussion}
 
+The system successfully demonstrates a working PLC-connected dashboard:
+
+\begin{itemize}
+    \item Reliable data exchange between components
+    \item Clear separation of responsibilities
+    \item Functional visualization and control
+\end{itemize}
+
+Limitations include the use of simulation instead of real hardware and potential latency introduced by multiple system layers.
+
 \section{Conclusion}
+
+The project achieves its goal of building a modular PLC-connected dashboard system. The architecture allows flexible interaction between industrial and modern software components.
+
+Future improvements could include integration of real hardware, more advanced simulations, or additional control algorithms.
+
+\appendix
+\section{Appendix}
+Additional materials such as screenshots, variable lists, or configuration files can be included here.
 
 \end{document}
