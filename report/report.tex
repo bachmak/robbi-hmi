@@ -12,7 +12,7 @@
 
 \usepackage[automark,headsepline]{scrlayer-scrpage}
 \pagestyle{scrheadings}
-\ihead[]{Internet of Things (IIoT) and Manufactoring Execution Systems}
+\ihead[]{Internet of Things (IIoT) and Manufacturing Execution Systems}
 \ohead[]{Dmitrii Kochetov}
 \cfoot[]{\pagemark}
 
@@ -35,11 +35,18 @@
 
 \section{Introduction}
 
-This project aims to develop a PLC-connected dashboard system as part of the lecture ``IoT \& MES''. The goal is to design a modular architecture that enables monitoring and control of a simulated system using modern tools and technologies.
+This project aims to develop a PLC-connected HMI system as part of the lecture ``IoT \& MES''.
+The goal is to design a modular architecture that enables monitoring and control of a simulated
+system using modern tools and technologies, reflecting the Industrie~4.0 vision of interconnected,
+data-driven production systems.
 
-The implemented system simulates a robotic vehicle with two independently controlled motors representing the left and right wheels. Instead of implementing complex motion logic directly on the PLC, the system separates responsibilities across different components.
+The implemented system simulates a robotic vehicle with two independently controlled motors representing
+the left and right wheels. Instead of implementing complex motion logic directly on the PLC, the system
+separates responsibilities across different components.
 
-A Python-based backend is used as an intermediary layer between the PLC, database, and dashboard. This design allows flexible data processing and avoids reliance on visual programming tools such as Node-RED. The overall system emphasizes modularity, decoupling, and reproducibility through containerization.
+A Python-based backend is used as an intermediary layer between the PLC, database, and dashboard.
+This design allows flexible data processing and avoids reliance on visual programming tools such as
+Node-RED. The overall system emphasizes modularity, decoupling, and reproducibility through containerization.
 
 \section{System Overview}
 
@@ -55,7 +62,8 @@ The system consists of the following main components:
     \item Docker for containerized deployment (except PLC)
 \end{itemize}
 
-The PLC is responsible for simulating the machine behavior, while Python handles communication and data processing. The database and dashboard are fully decoupled from the PLC.
+The PLC is responsible for simulating the machine behavior, while Python handles communication and
+data processing. The database and dashboard are fully decoupled from the PLC.
 
 \subsection{Data Flow}
 
@@ -82,7 +90,8 @@ The PLC simulates a simple system consisting of two motors:
     \item Right motor
 \end{itemize}
 
-Each motor is represented by variables such as rotational speed and basic state information. The simulation does not include physical modeling but focuses on data representation and controllability.
+Each motor is represented by variables such as rotational speed and basic state information. The
+simulation does not include physical modeling but focuses on data representation and controllability.
 
 \subsection{Data Structures}
 
@@ -103,15 +112,18 @@ The PLC handles only low-level control logic:
     \item Each motor receives a rotational speed value
 \end{itemize}
 
-Higher-level motion parameters such as linear or angular velocity are not computed in the PLC. This separation keeps the PLC logic simple and shifts more complex calculations to the backend.
+Higher-level motion parameters such as linear or angular velocity are not computed in the PLC. This
+separation keeps the PLC logic simple and shifts more complex calculations to the backend.
 
 \section{Communication Interface}
 
 \subsection{OPC UA Setup}
 
-Communication between the PLC and Python is implemented using OPC UA. The PLC exposes its variables via an OPC UA server, which allows external clients to read and write data.
+Communication between the PLC and Python is implemented using OPC UA. The PLC exposes its variables
+via an OPC UA server, which allows external clients to read and write data.
 
-OPC UA was chosen due to its platform independence, standardization, and compatibility with industrial systems.
+OPC UA was chosen due to its platform independence, standardization, and compatibility with
+industrial systems.
 
 \subsection{Python Middleware}
 
@@ -143,7 +155,8 @@ The architecture focuses on clear separation of concerns and minimal direct depe
 
 \subsection{Database Choice}
 
-InfluxDB was selected as the database due to its specialization in time-series data. It is well-suited for storing continuously changing process variables.
+InfluxDB was selected as the database due to its specialization in time-series data. It is
+well-suited for storing continuously changing process variables.
 
 \subsection{Data Model}
 
@@ -160,7 +173,8 @@ Each data point is timestamped, enabling historical analysis and visualization i
 
 \subsection{Grafana Setup}
 
-Grafana is connected to InfluxDB as its data source. It retrieves stored values and presents them in real time.
+Grafana is connected to InfluxDB as its data source. It retrieves stored values and presents them
+in real time.
 
 \subsection{Visualization}
 
@@ -213,7 +227,8 @@ All services can be started using a single configuration.
 
 \subsection{VM and Host Setup}
 
-The PLC environment (TIA Portal and PLCSIM) runs inside a virtual machine, while Docker containers run on the host system.
+The PLC environment (TIA Portal and PLCSIM) runs inside a virtual machine, while Docker containers
+run on the host system.
 
 This setup separates engineering tools from runtime services.
 
@@ -226,7 +241,8 @@ Different deployment strategies were evaluated:
     \item Running all components inside a virtual machine
 \end{itemize}
 
-Each approach has trade-offs regarding networking, performance, and complexity. The chosen hybrid setup provides a good balance between usability and stability.
+Each approach has trade-offs regarding networking, performance, and complexity. The chosen hybrid
+setup provides a good balance between usability and stability.
 
 \section{Setup Guide}
 
@@ -252,13 +268,16 @@ The system successfully demonstrates a working PLC-connected dashboard:
     \item Functional visualization and control
 \end{itemize}
 
-Limitations include the use of simulation instead of real hardware and potential latency introduced by multiple system layers.
+Limitations include the use of simulation instead of real hardware and potential latency introduced
+by multiple system layers.
 
 \section{Conclusion}
 
-The project achieves its goal of building a modular PLC-connected dashboard system. The architecture allows flexible interaction between industrial and modern software components.
+The project achieves its goal of building a modular PLC-connected dashboard system. The architecture
+allows flexible interaction between industrial and modern software components.
 
-Future improvements could include integration of real hardware, more advanced simulations, or additional control algorithms.
+Future improvements could include integration of real hardware, more advanced simulations, or
+additional control algorithms.
 
 \appendix
 \section{Appendix}
