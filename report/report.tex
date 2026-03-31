@@ -85,14 +85,15 @@ The overall structure is illustrated in \autoref{fig:architecture}.
 The system follows a clearly defined data flow:
 
 \begin{itemize}
-    \item The PLC exposes process variables via OPC UA
-    \item Python reads these values and stores them in InfluxDB
+    \item The PLC exposes process variables via OPC UA and accepts setpoint values written to its
+    OPC UA nodes
+    \item Python subscribes to OPC UA value changes and additionally polls the PLC periodically for
+    snapshots, storing the results in InfluxDB
     \item Grafana retrieves data from InfluxDB for visualization
     \item User interactions in Grafana are sent to Python
-    \item Python processes the requests and writes values back to the PLC
+    \item Python processes the requests, stores them in InfluxDB, and writes the corresponding
+    values back to the PLC
 \end{itemize}
-
-Each component only interacts with the Python backend, ensuring loose coupling and a modular architecture.
 
 \section{PLC Implementation}
 
