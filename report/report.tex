@@ -2,6 +2,7 @@
 \usepackage[english]{babel}
 \usepackage[utf8]{inputenc}
 \usepackage{graphicx}
+\usepackage{float}
 \usepackage{hyperref}
 \usepackage{setspace}
 \usepackage[left=2.5cm,right=2.5cm,top=2.5cm,bottom=2.5cm]{geometry}
@@ -48,6 +49,12 @@ A Python-based backend is used as an intermediary layer between the PLC, databas
 This design allows flexible data processing and avoids reliance on visual programming tools such as
 Node-RED. The overall system emphasizes modularity, decoupling, and reproducibility through containerization.
 
+A further goal is to follow the \textit{Infrastructure as Code} (IaC) principle, meaning that all
+infrastructure components---containers, service configurations, and environment definitions---are
+fully described in declarative configuration files. Version control plays a central role in achieving
+this, as it ensures traceability of changes, supports collaboration, and allows the entire system
+state to be restored or replicated at any point in time.
+
 \section{System Overview}
 
 \subsection{Architecture}
@@ -64,8 +71,9 @@ The system consists of the following main components:
 
 The PLC is responsible for simulating the machine behavior, while Python handles communication and
 data processing. The database and dashboard are fully decoupled from the PLC.
+The overall structure is illustrated in \autoref{fig:architecture}.
 
-\begin{figure}[h]
+\begin{figure}[H]
     \centering
     \includegraphics[width=\textwidth]{.export/architecture-Architecture}
     \caption{System Architecture}

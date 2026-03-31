@@ -66,7 +66,7 @@
         <mxCell id="opcua" parent="vm" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;fontColor=#333333;strokeColor=#666666;fontSize=15;" value="OPC UA Server" vertex="1">
           <mxGeometry height="60" width="150" x="50" y="160" as="geometry" />
         </mxCell>
-        <mxCell id="plc" parent="vm" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;fontColor=#333333;strokeColor=#666666;fontSize=15;" value="PLC (S7-PLCSIM)" vertex="1">
+        <mxCell id="plc" parent="vm" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;fontColor=#333333;strokeColor=#666666;fontSize=15;" value="PLC (S7-1511-1 PN)" vertex="1">
           <mxGeometry height="80" width="150" x="50" y="30" as="geometry" />
         </mxCell>
         <mxCell id="4rnFpyParx1hc4vi5gDC-6" edge="1" parent="vm" source="plc" style="endArrow=block;edgeStyle=orthogonalEdgeStyle;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;fontSize=15;" target="opcua" value="">
