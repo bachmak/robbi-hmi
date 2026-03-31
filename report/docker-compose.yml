@@ -1,0 +1,7 @@
+services:
+  latex:
+    image: texlive/texlive
+    volumes:
+      - ../:/data
+    working_dir: /data/report
+    command: sh -c "mkdir -p /data/.out && pdflatex -output-directory /data/.out report.tex"
