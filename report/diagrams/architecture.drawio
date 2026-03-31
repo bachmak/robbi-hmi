@@ -1,0 +1,84 @@
+<mxfile host="localhost">
+  <diagram name="Architecture" id="0">
+    <mxGraphModel dx="1131" dy="699" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1600" pageHeight="1000" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="browser" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontColor=#333333;fontSize=15;" value="Browser (User)" vertex="1">
+          <mxGeometry height="80" width="180" x="644" y="520" as="geometry" />
+        </mxCell>
+        <mxCell id="4rnFpyParx1hc4vi5gDC-12" parent="1" style="rounded=1;whiteSpace=wrap;html=1;strokeWidth=2;align=center;verticalAlign=top;fillColor=none;fontSize=15;" value="Docker" vertex="1">
+          <mxGeometry height="370" width="540" x="458" y="121" as="geometry" />
+        </mxCell>
+        <mxCell id="4rnFpyParx1hc4vi5gDC-7" edge="1" parent="1" source="opcua" style="endArrow=block;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;edgeStyle=orthogonalEdgeStyle;fontSize=15;" target="python" value="OPC UA">
+          <mxGeometry relative="1" x="0.2929" as="geometry">
+            <mxPoint as="offset" />
+            <Array as="points">
+              <mxPoint x="340" y="410" />
+              <mxPoint x="340" y="410" />
+            </Array>
+            <mxPoint x="440" y="580" as="sourcePoint" />
+            <mxPoint x="635" y="490" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="influx" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontColor=#333333;fontSize=15;" value="InfluxDB" vertex="1">
+          <mxGeometry height="80" width="150" x="653" y="151" as="geometry" />
+        </mxCell>
+        <mxCell id="python" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontColor=#333333;fontSize=15;" value="Python Middleware:&lt;div&gt;&lt;br&gt;&lt;div&gt;OPC UA Client&lt;/div&gt;&lt;div&gt;InfluxDB Client&lt;/div&gt;&lt;div&gt;WebServer&lt;/div&gt;&lt;/div&gt;" vertex="1">
+          <mxGeometry height="100" width="180" x="490" y="360" as="geometry" />
+        </mxCell>
+        <mxCell id="grafana" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontColor=#333333;fontSize=15;" value="Grafana (HMI)" vertex="1">
+          <mxGeometry height="80" width="150" x="800" y="370" as="geometry" />
+        </mxCell>
+        <mxCell id="4rnFpyParx1hc4vi5gDC-17" edge="1" parent="1" source="grafana" style="endArrow=block;exitX=0.5;exitY=0;exitDx=0;exitDy=0;edgeStyle=orthogonalEdgeStyle;entryX=1;entryY=0.5;entryDx=0;entryDy=0;fontSize=15;" target="influx" value="InfluxQL (read-only)">
+          <mxGeometry relative="1" x="-0.1635" as="geometry">
+            <mxPoint as="offset" />
+            <mxPoint x="720" y="451" as="sourcePoint" />
+            <mxPoint x="805" y="321" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="4rnFpyParx1hc4vi5gDC-18" edge="1" parent="1" source="browser" style="endArrow=block;exitX=0.5;exitY=0;exitDx=0;exitDy=0;edgeStyle=orthogonalEdgeStyle;entryX=0;entryY=0.5;entryDx=0;entryDy=0;fontSize=15;" target="grafana" value="HTTP">
+          <mxGeometry relative="1" x="-0.3682" as="geometry">
+            <mxPoint as="offset" />
+            <mxPoint x="975" y="610" as="sourcePoint" />
+            <mxPoint x="900" y="470" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="4rnFpyParx1hc4vi5gDC-19" edge="1" parent="1" source="browser" style="endArrow=block;exitX=0.5;exitY=0;exitDx=0;exitDy=0;edgeStyle=orthogonalEdgeStyle;entryX=1;entryY=0.5;entryDx=0;entryDy=0;fontSize=15;" target="python" value="">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="870" y="650" as="sourcePoint" />
+            <mxPoint x="1020" y="530" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="4rnFpyParx1hc4vi5gDC-25" edge="1" parent="1" source="python" style="endArrow=block;exitX=0.5;exitY=0;exitDx=0;exitDy=0;edgeStyle=orthogonalEdgeStyle;entryX=0;entryY=0.5;entryDx=0;entryDy=0;fontSize=15;" target="influx" value="InfluxQL (read/write)">
+          <mxGeometry relative="1" x="-0.2111" y="-1" as="geometry">
+            <mxPoint as="offset" />
+            <mxPoint x="1050" y="380" as="sourcePoint" />
+            <mxPoint x="960" y="290" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="4rnFpyParx1hc4vi5gDC-26" connectable="0" parent="1" style="group;fontSize=15;" value="" vertex="1">
+          <mxGeometry height="310" width="400" x="82" y="190" as="geometry" />
+        </mxCell>
+        <mxCell id="vm" parent="4rnFpyParx1hc4vi5gDC-26" style="rounded=1;whiteSpace=wrap;html=1;strokeWidth=2;verticalAlign=top;fillColor=none;fontSize=15;" value="PLCSIM" vertex="1">
+          <mxGeometry height="250" width="272.5" y="30" as="geometry" />
+        </mxCell>
+        <mxCell id="opcua" parent="vm" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;fontColor=#333333;strokeColor=#666666;fontSize=15;" value="OPC UA Server" vertex="1">
+          <mxGeometry height="60" width="150" x="50" y="160" as="geometry" />
+        </mxCell>
+        <mxCell id="plc" parent="vm" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;fontColor=#333333;strokeColor=#666666;fontSize=15;" value="PLC (S7-PLCSIM)" vertex="1">
+          <mxGeometry height="80" width="150" x="50" y="30" as="geometry" />
+        </mxCell>
+        <mxCell id="4rnFpyParx1hc4vi5gDC-6" edge="1" parent="vm" source="plc" style="endArrow=block;edgeStyle=orthogonalEdgeStyle;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;fontSize=15;" target="opcua" value="">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="197.3684210526316" y="300" as="sourcePoint" />
+            <mxPoint x="325.6578947368421" y="210" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="4rnFpyParx1hc4vi5gDC-2" parent="4rnFpyParx1hc4vi5gDC-26" style="rounded=1;whiteSpace=wrap;html=1;strokeWidth=2;verticalAlign=top;fillColor=none;fontSize=15;" value="Hyper-V" vertex="1">
+          <mxGeometry height="310" width="312.5" x="-19.25" y="-9" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
