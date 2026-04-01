@@ -90,13 +90,12 @@ state to be restored or replicated at any point in time.
 
 The system consists of the following main components:
 
-% TODO: add references to the corresponding sections describing each component in more detail
 \begin{itemize}
-    \item PLC simulated using TIA Portal and PLCSIM
-    \item Python backend acting as communication layer
-    \item InfluxDB as time-series database
-    \item Grafana for visualization and user interaction
-    \item Docker for containerized deployment (except PLC)
+    \item PLC simulated using TIA Portal and PLCSIM (see \autoref{sec:plc})
+    \item Python backend acting as communication layer (see \autoref{sec:comms})
+    \item InfluxDB as time-series database (see \autoref{sec:storage})
+    \item Grafana for visualization and user interaction (see \autoref{sec:dashboard})
+    \item Docker for containerized deployment (except the PLC) (see \autoref{sec:deployment})
 \end{itemize}
 
 The PLC is responsible for simulating the machine behavior, while Python handles communication and
@@ -126,13 +125,14 @@ The system follows a clearly defined data flow:
 \end{itemize}
 
 \section{PLC Implementation}
+\label{sec:plc}
 
 \subsection{Hardware Selection}
 
-The simulated PLC is a Siemens \cpuModel{}. For a real deployment a CPU from the S7-1200 series
+The simulated PLC is a Siemens \cpuModel{}. For a real deployment, a CPU from the S7-1200 series
 would be sufficient for this application; however, the \cpuModel{} was chosen due to a tooling
 constraint: PLCSIM Advanced is required to simulate an OPC UA server, and it does not support the
-1200 series. Within the 1500 series the \cpuModel{} is the entry-level model, so it was the
+1200 series. Within the 1500 series, the \cpuModel{} is the entry-level model, so it was the
 natural choice.
 
 \subsection{Program Structure}
@@ -199,9 +199,11 @@ Three utility functions support the model: \fcUtilsRand{} (random jitter),
 \fcControlMotor{} runs a simple P-controller each cycle with \fTargetSpeed{} as the setpoint and
 \fPWM{} as the output. Setting \fEnableOverridePWM{}
 bypasses the controller and writes \fOverridePWM{} directly; \fStop{} disables the motor
-immediately. Higher-level kinematics are handled outside the PLC.
+immediately. Higher-level kinematics are handled outside the PLC
+(see \autoref{sec:comms}).
 
 \section{Communication Interface}
+\label{sec:comms}
 
 \subsection{Python Backend}
 
@@ -229,7 +231,7 @@ for the following reasons:
     at rapid prototyping.
 \end{itemize}
 
-\subsubsection{OPC UA over a S7-specific library}
+\subsubsection{OPC UA over an S7-specific library}
 
 An alternative would have been to use a Siemens-specific library (e.g.\ snap7 via python-snap7)
 to communicate directly with the S7 PLC. OPC UA was chosen instead for the following reasons:
@@ -268,6 +270,7 @@ and periodically rewrites the latest value as another explicit workaround to avo
 discontinuous Grafana panels after restarts or long inactive phases.
 
 \section{Data Storage}
+\label{sec:storage}
 
 \subsection{Database Choice}
 
@@ -301,6 +304,7 @@ InfluxDB assigns timestamps to all points, enabling historical analysis and cont
 in Grafana.
 
 \section{Dashboard}
+\label{sec:dashboard}
 
 \subsection{Choice of Grafana}
 
@@ -378,6 +382,7 @@ The active control mode is reflected in the \emph{Control mode} gauge, which rea
 \texttt{pwm\_override\_enable} from the stored telemetry and displays either ``Motion'' or ``PWM''.
 
 \section{Deployment}
+\label{sec:deployment}
 
 \subsection{Deployment Goal and IaC Approach}
 
@@ -417,8 +422,8 @@ The project was tested with two deployment variants:
     \item \textbf{All-in-VM setup} --- PLC simulation and Docker services running in the same VM
 \end{itemize}
 
-From an operational perspective, the hybrid setup is closer to realistic deployments, where PLC/
-engineering tooling and application services are typically not co-located inside one VM. The
+From an operational perspective, the hybrid setup is closer to realistic deployments, where
+PLC/engineering tooling and application services are typically not co-located inside one VM. The
 all-in-VM variant was nevertheless useful in this project because the available TIA Portal license
 was bound to the VM environment and because a single-machine VM setup simplified end-to-end
 debugging.
@@ -426,12 +431,21 @@ debugging.
 \section{Setup Guide}
 
 The setup supports both deployment variants introduced in
-\autoref{sec:deployment-strategies} (single-machine and VM + Host). A concise run sequence
+\autoref{sec:deployment-strategies} (all-in-VM and hybrid). A concise run sequence
 is given below. Both variants were functional in testing. For robust and reproducible operation,
 the default recommendation is to run all components on the same machine (physical or virtual),
 because this avoids additional network bridging and port-forwarding dependencies. In
 single-machine mode, execute all steps on that same machine. In hybrid mode, follow the location
 notes in each step.
+
+\textbf{Prerequisites.} The following tools must be installed before running the setup:
+
+\begin{itemize}
+    \item Siemens TIA Portal V\textit{17} with PLCSIM Advanced V\textit{17}
+    (on the machine running the PLC simulation)
+    \item Docker Desktop (on the machine running the containerized services)
+    \item Git (or use the attached project archive directly)
+\end{itemize}
 
 \begin{enumerate}
     \item Create a PLCSIM Advanced instance as shown in \autoref{fig:plcsim-screenshot}
