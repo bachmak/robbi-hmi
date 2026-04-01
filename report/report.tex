@@ -33,6 +33,8 @@
 \newcommand{\tyMotorState}{\texttt{MotorState}}
 \newcommand{\tyMotorControl}{\texttt{MotorControl}}
 \newcommand{\tyMotorControls}{\texttt{MotorControls}}
+% PLC hardware
+\newcommand{\cpuModel}{S7~1511-1~PN}
 % PLC function and data block names
 \newcommand{\fcRobot}{\texttt{FC\_Robot}}
 \newcommand{\dbRobot}{\texttt{DB\_Robot}}
@@ -123,6 +125,14 @@ The system follows a clearly defined data flow:
 \end{itemize}
 
 \section{PLC Implementation}
+
+\subsection{Hardware Selection}
+
+The simulated PLC is a Siemens \cpuModel{}. For a real deployment a CPU from the S7-1200 series
+would be sufficient for this application; however, the \cpuModel{} was chosen due to a tooling
+constraint: PLCSIM Advanced is required to simulate an OPC UA server, and it does not support the
+1200 series. Within the 1500 series the \cpuModel{} is the entry-level model, so it was the
+natural choice.
 
 \subsection{Program Structure}
 
