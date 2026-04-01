@@ -111,14 +111,43 @@ simulation does not include physical modeling but focuses on data representation
 
 \subsection{Data Structures}
 
-The PLC program uses structured data to represent the system:
+The PLC program uses two custom structured data types and an array to represent the system state and
+control interface.
+
+\textbf{MotorState} captures the current status of a single motor and is exposed as read-only via
+OPC UA:
 
 \begin{itemize}
-    \item Arrays for grouping motor-related values
-    \item Structured data types for system states
+    \item \texttt{Enable} (Bool) --- whether the motor is enabled
+    \item \texttt{Speed} (Real) --- current rotational speed in deg/s
+    \item \texttt{Position} (Real) --- accumulated angular position in degrees (0--360)
+    \item \texttt{Temperature} (Real) --- motor temperature in \textdegree{}C
+    \item \texttt{PWM} (Real) --- current PWM duty cycle (0.0 = full reverse, 1.0 = full forward)
+    \item \texttt{Running} (Bool) --- indicates active motor operation
+    \item \texttt{Fault} (Bool) --- fault flag
 \end{itemize}
 
-This fulfills the requirement of using different data structures and improves scalability of the system.
+\textbf{MotorControl} groups all writable setpoints together with the embedded read-only state for
+a single motor:
+
+\begin{itemize}
+    \item \texttt{TargetSpeed} (Real) --- desired rotational speed setpoint in deg/s (read/write)
+    \item \texttt{OverridePWM} (Real) --- manual PWM override value (0.0 = full reverse, 1.0 = full forward; read/write)
+    \item \texttt{EnableOverridePWM} (Bool) --- activates the PWM override mode (read/write)
+    \item \texttt{Stop} (Bool) --- issues a stop command to the motor (read/write)
+    \item \texttt{Kp} (Real) --- proportional gain for the speed controller (read/write)
+    \item \texttt{MotorState} (\texttt{"MotorState"}) --- nested read-only state struct (read-only)
+\end{itemize}
+
+\textbf{MotorControls} is an array of two \texttt{MotorControl} instances, indexed as \texttt{[0]}
+for the left wheel and \texttt{[1]} for the right wheel. This array is the top-level OPC UA object
+through which external components access both motors uniformly.
+
+This design covers the requirement of using different data structures: a struct for grouping related
+fields, nesting to embed state inside a control block, and an array to hold multiple motors. A key
+benefit is that the PLC itself is not aware of which motor is ``left'' or ``right''---it simply
+operates on array indices. The interpretation is left to higher-level components. Adding a third
+motor would only require extending the array, with no changes to the data types themselves.
 
 \subsection{Control Logic}
 
