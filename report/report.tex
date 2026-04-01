@@ -145,6 +145,7 @@ All motor state and setpoints are stored persistently in \dbRobot{}, which holds
 \tyMotorControls{} array described in the next section.
 
 \subsection{Data Structures}
+\label{sec:plc-data-structures}
 
 The PLC program uses two custom structured data types and an array to represent the system state and
 control interface.
@@ -244,6 +245,7 @@ to communicate directly with the S7 PLC. OPC UA was chosen instead for the follo
 \end{itemize}
 
 \subsection{Backend Architecture}
+\label{sec:backend-architecture-text}
 
 The internal structure of the Python backend is illustrated in \autoref{fig:backend-architecture}.
 
@@ -269,19 +271,34 @@ discontinuous Grafana panels after restarts or long inactive phases.
 
 \subsection{Database Choice}
 
-InfluxDB was selected as the database due to its specialization in time-series data. It is
-well-suited for storing continuously changing process variables.
+InfluxDB~2 was selected because the project primarily handles time-stamped process signals and
+control intents. It integrates directly with Grafana through Flux queries and is a natural fit for
+continuous telemetry from the PLC. It is also a widely adopted, modern, and well-established
+industry tool for time-series workloads, so using it in this project is valuable from a learning
+perspective.
+
+\subsection{Storage Responsibilities}
+
+The database layer has two core responsibilities: persisting telemetry from the PLC-facing OPC UA
+path and persisting high-level control intent from the API path. This keeps observability data and
+operator intent in one time-aligned history, which simplifies analysis and dashboard queries.
 
 \subsection{Data Model}
 
-The stored data includes:
+The backend writes two main measurement groups to the robot bucket:
 
 \begin{itemize}
-    \item Motor speeds
-    \item System states
+    \item \textbf{Wheel telemetry and configuration} from OPC UA samples
+    (e.g. speed, temperature, PWM, target speed, controller parameters; see
+    \autoref{sec:plc-data-structures}), tagged by
+    \texttt{wheel\_side}
+    \item \textbf{Motion intent} (\texttt{v}, \texttt{omega}, \texttt{emergency\_stop}), which is an
+    application-level command history and does not exist as a native PLC signal (see
+    \autoref{sec:backend-architecture-text})
 \end{itemize}
 
-Each data point is timestamped, enabling historical analysis and visualization in Grafana.
+InfluxDB assigns timestamps to all points, enabling historical analysis and continuous visualization
+in Grafana.
 
 \section{Dashboard}
 
