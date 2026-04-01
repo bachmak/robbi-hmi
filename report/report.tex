@@ -505,6 +505,9 @@ cd robbi-hmi
 \begin{verbatim}
 docker-compose up -d
 \end{verbatim}
+    On first run, Docker will pull or build all required images before starting the containers.
+    This may take several minutes depending on network speed and machine performance.
+    Wait until all containers report a healthy status before proceeding.
     \item Open Grafana in a browser at \texttt{http://localhost:3000}
     (Hybrid: from the host browser)
 \end{enumerate}

@@ -8,12 +8,8 @@ $ip = (Get-NetIPAddress -AddressFamily IPv4 |
 
 Write-Host "OPC UA URL: opc.tcp://${ip}:4840"
 
-netsh interface portproxy add v4tov4 `
-    listenaddress=$ip listenport=4840 `
-    connectaddress=VM_IP connectport=4840
+netsh interface portproxy add v4tov4 listenaddress=$ip listenport=4840 connectaddress=192.168.0.1 connectport=4840
+netsh advfirewall firewall add rule name="PortProxy 4840" dir=in action=allow protocol=TCP localport=4840
 
-netsh advfirewall firewall add rule `
-    name="PortProxy 4840" dir=in action=allow `
-    protocol=TCP localport=4840
-
+sc query iphlpsvc
 sc start iphlpsvc
