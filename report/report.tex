@@ -29,6 +29,33 @@
 \tikzstyle{output} = [coordinate]
 \tikzstyle{point} = [coordinate]
 
+% PLC entity name macros — type names
+\newcommand{\tyMotorState}{\texttt{MotorState}}
+\newcommand{\tyMotorControl}{\texttt{MotorControl}}
+\newcommand{\tyMotorControls}{\texttt{MotorControls}}
+% PLC function and data block names
+\newcommand{\fcRobot}{\texttt{FC\_Robot}}
+\newcommand{\dbRobot}{\texttt{DB\_Robot}}
+\newcommand{\fcControlMotor}{\texttt{Control/FC\_Control\_Motor}}
+\newcommand{\fcSimMotor}{\texttt{Simulation/FC\_Simulation\_Motor}}
+\newcommand{\fcUtilsRand}{\texttt{Utils/FC\_Utils\_Rand}}
+\newcommand{\fcUtilsScale}{\texttt{Utils/FC\_Utils\_Scale}}
+\newcommand{\fcUtilsWrap}{\texttt{Utils/FC\_Utils\_Wrap}}
+% MotorState field names
+\newcommand{\fEnable}{\texttt{Enable}}
+\newcommand{\fSpeed}{\texttt{Speed}}
+\newcommand{\fPosition}{\texttt{Position}}
+\newcommand{\fTemperature}{\texttt{Temperature}}
+\newcommand{\fPWM}{\texttt{PWM}}
+\newcommand{\fRunning}{\texttt{Running}}
+\newcommand{\fFault}{\texttt{Fault}}
+% MotorControl field names
+\newcommand{\fTargetSpeed}{\texttt{TargetSpeed}}
+\newcommand{\fOverridePWM}{\texttt{OverridePWM}}
+\newcommand{\fEnableOverridePWM}{\texttt{EnableOverridePWM}}
+\newcommand{\fStop}{\texttt{Stop}}
+\newcommand{\fKp}{\texttt{Kp}}
+
 \begin{document}
 
 \tableofcontents
@@ -97,51 +124,47 @@ The system follows a clearly defined data flow:
 
 \section{PLC Implementation}
 
-\subsection{Simulation Model}
+\subsection{Program Structure}
 
-The PLC simulates a simple system consisting of two motors:
-
-\begin{itemize}
-    \item Left motor
-    \item Right motor
-\end{itemize}
-
-Each motor is represented by variables such as rotational speed and basic state information. The
-simulation does not include physical modeling but focuses on data representation and controllability.
+The PLC project is structured into a main OB, a robot function block, per-motor control and
+simulation function blocks, a global data block, and a set of utility functions.
+The main OB simply calls \fcRobot{}, which iterates over the \tyMotorControls{} array and invokes
+\fcControlMotor{} and \fcSimMotor{} for each entry in sequence.
+All motor state and setpoints are stored persistently in \dbRobot{}, which holds the
+\tyMotorControls{} array described in the next section.
 
 \subsection{Data Structures}
 
 The PLC program uses two custom structured data types and an array to represent the system state and
 control interface.
 
-\textbf{MotorState} captures the current status of a single motor and is exposed as read-only via
+\textbf{\tyMotorState} captures the current status of a single motor and is exposed as read-only via
 OPC UA:
 
 \begin{itemize}
-    \item \texttt{Enable} (Bool) --- whether the motor is enabled
-    \item \texttt{Speed} (Real) --- current rotational speed in deg/s
-    \item \texttt{Position} (Real) --- accumulated angular position in degrees (0--360)
-    \item \texttt{Temperature} (Real) --- motor temperature in \textdegree{}C
-    \item \texttt{PWM} (Real) --- current PWM duty cycle (0.0 = full reverse, 1.0 = full forward)
-    \item \texttt{Running} (Bool) --- indicates active motor operation
-    \item \texttt{Fault} (Bool) --- fault flag
+    \item \fEnable{} (Bool) --- whether the motor is enabled
+    \item \fSpeed{} (Real) --- current rotational speed in deg/s
+    \item \fPosition{} (Real) --- accumulated angular position in degrees (0--360)
+    \item \fTemperature{} (Real) --- motor temperature in \textdegree{}C
+    \item \fPWM{} (Real) --- current PWM duty cycle (0.0 = full reverse, 1.0 = full forward)
+    \item \fRunning{} (Bool) --- indicates active motor operation
+    \item \fFault{} (Bool) --- fault flag
 \end{itemize}
 
-\textbf{MotorControl} groups all writable setpoints together with the embedded read-only state for
+\textbf{\tyMotorControl} groups all writable setpoints together with the embedded read-only state for
 a single motor:
 
 \begin{itemize}
-    \item \texttt{TargetSpeed} (Real) --- desired rotational speed setpoint in deg/s (read/write)
-    \item \texttt{OverridePWM} (Real) --- manual PWM override value (0.0 = full reverse, 1.0 = full forward; read/write)
-    \item \texttt{EnableOverridePWM} (Bool) --- activates the PWM override mode (read/write)
-    \item \texttt{Stop} (Bool) --- issues a stop command to the motor (read/write)
-    \item \texttt{Kp} (Real) --- proportional gain for the speed controller (read/write)
-    \item \texttt{MotorState} (\texttt{"MotorState"}) --- nested read-only state struct (read-only)
+    \item \fTargetSpeed{} (Real) --- desired rotational speed setpoint in deg/s (read/write)
+    \item \fOverridePWM{} (Real) --- manual PWM override value (0.0 = full reverse, 1.0 = full forward; read/write)
+    \item \fEnableOverridePWM{} (Bool) --- activates the PWM override mode (read/write)
+    \item \fStop{} (Bool) --- issues a stop command to the motor (read/write)
+    \item \fKp{} (Real) --- proportional gain for the speed controller (read/write)
+    \item \tyMotorState{} --- nested field of type \tyMotorState{} (read-only)
 \end{itemize}
 
-\textbf{MotorControls} is an array of two \texttt{MotorControl} instances, indexed as \texttt{[0]}
-for the left wheel and \texttt{[1]} for the right wheel. This array is the top-level OPC UA object
-through which external components access both motors uniformly.
+\textbf{\tyMotorControls} is an array of two \tyMotorControl{} instances. This array is the
+top-level OPC UA object through which external components access both motors uniformly.
 
 This design covers the requirement of using different data structures: a struct for grouping related
 fields, nesting to embed state inside a control block, and an array to hold multiple motors. A key
@@ -149,16 +172,22 @@ benefit is that the PLC itself is not aware of which motor is ``left'' or ``righ
 operates on array indices. The interpretation is left to higher-level components. Adding a third
 motor would only require extending the array, with no changes to the data types themselves.
 
+\subsection{Simulation Model}
+
+\fcSimMotor{} models each motor per PLC cycle: \fPWM{} is clamped and mapped to a target speed,
+which the actual speed tracks with a first-order lag and random jitter. Position is integrated from
+speed and wrapped to 0--360\textdegree{}. Temperature follows speed via a quadratic target and a
+thermal lag. \fRunning{} stays set while the motor is enabled, still coasting, or still warm.
+
+Three utility functions support the model: \fcUtilsRand{} (random jitter),
+\fcUtilsScale{} (range mapping), and \fcUtilsWrap{} (angle wrapping).
+
 \subsection{Control Logic}
 
-The PLC handles only low-level control logic:
-
-\begin{itemize}
-    \item Each motor receives a rotational speed value
-\end{itemize}
-
-Higher-level motion parameters such as linear or angular velocity are not computed in the PLC. This
-separation keeps the PLC logic simple and shifts more complex calculations to the backend.
+\fcControlMotor{} runs a simple P-controller each cycle with \fTargetSpeed{} as the setpoint and
+\fPWM{} as the output. Setting \fEnableOverridePWM{}
+bypasses the controller and writes \fOverridePWM{} directly; \fStop{} disables the motor
+immediately. Higher-level kinematics are handled outside the PLC.
 
 \section{Communication Interface}
 
