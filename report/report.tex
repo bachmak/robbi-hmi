@@ -11,17 +11,37 @@
 \usepackage{amsmath}
 \usepackage{amssymb}
 
-\usepackage[automark,headsepline]{scrlayer-scrpage}
-\pagestyle{scrheadings}
-\ihead[]{Internet of Things (IIoT) and Manufacturing Execution Systems}
-\ohead[]{Dmitrii Kochetov}
-\cfoot[]{\pagemark}
+\usepackage{fancyhdr}
 
 \setlength{\parskip}{0.8em}
 \setlength{\parindent}{0pt}
 
 \usepackage{tikz}
 \usetikzlibrary{shapes,arrows,positioning,calc}
+
+\definecolor{thRed}{HTML}{E2001A}
+\definecolor{thOrange}{HTML}{FFB400}
+\definecolor{thPurple}{HTML}{7D007D}
+
+\pagestyle{fancy}
+\fancyhf{}
+\renewcommand{\headrulewidth}{0.4pt}
+\fancyhead[L]{\textit{Internet of Things (IIoT) and Manufacturing Execution Systems}}
+\fancyhead[R]{\textit{Dmitrii Kochetov}}
+\fancyfoot[C]{\thepage}
+
+\fancypagestyle{firstpage}{%
+    \fancyhf{}
+    \renewcommand{\headrulewidth}{0pt}
+    \fancyhead[L]{%
+        \begin{tikzpicture}[remember picture, overlay]
+            \fill[thRed]    (0, 0.5) rectangle (0.33\textwidth, 0.65);
+            \fill[thOrange] (0.33\textwidth, 0.5) rectangle (0.66\textwidth, 0.65);
+            \fill[thPurple] (0.66\textwidth, 0.5) rectangle (\textwidth, 0.65);
+        \end{tikzpicture}%
+    }
+    \fancyfoot[C]{}
+}
 
 \tikzstyle{block} = [draw, fill=white, rectangle, minimum height=3em, minimum width=4em]
 \tikzstyle{sum} = [draw, fill=white, circle, node distance=1cm]
@@ -59,6 +79,23 @@
 \newcommand{\fKp}{\texttt{Kp}}
 
 \begin{document}
+
+\begin{titlepage}
+\thispagestyle{firstpage}
+\vspace*{3cm}
+\begin{center}
+    {\large TH Köln -- University of Applied Sciences}\\[0.3cm]
+    {\large Automation \& IT (Master)}\\[2.5cm]
+    {\LARGE\bfseries Internet of Things (IIoT) and\\[0.3cm]Manufacturing Execution Systems}\\[0.8cm]
+    {\large Project Assignment}\\[2.5cm]
+    \begin{tabular}{ll}
+        Author:                & Dmitrii Kochetov \\[0.3cm]
+        Matriculation number:  & 11555711 \\[0.3cm]
+        Lecturer:              & Prof.\ Dr.\ Felix Hackelöer \\
+    \end{tabular}\\[2.5cm]
+    {\large \today}
+\end{center}
+\end{titlepage}
 
 \tableofcontents
 \newpage
