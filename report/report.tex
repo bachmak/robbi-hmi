@@ -302,33 +302,80 @@ in Grafana.
 
 \section{Dashboard}
 
+\subsection{Choice of Grafana}
+
+Grafana was chosen as the dashboard implementation for the following reasons:
+
+\begin{itemize}
+    \item \textbf{Professional data visualization} --- Grafana is a widely adopted, production-grade
+    observability platform with a rich set of panel types, flexible query editors, and multi-series
+    layouts out of the box.
+    \item \textbf{Personal preference} --- although not the most common choice for machine-level
+    HMIs, Grafana is well established in the IT and DevOps world. It is relatively easy to
+    configure and produces polished dashboards with minimal effort, making it a good tool to learn.
+\end{itemize}
+
 \subsection{Grafana Setup}
 
-Grafana is connected to InfluxDB as its data source. It retrieves stored values and presents them
-in real time.
+Grafana serves as the visualization and control front-end of the system. Its InfluxDB datasource
+and default dashboard are provisioned automatically from configuration files at container startup,
+so no manual Grafana setup is required after deployment. The datasource uses the Flux query
+language and connects to InfluxDB. The default auto-refresh interval is set to one second, enabling
+near real-time display of live process data. The operator can also freely adjust the time range to
+analyze historical motor behavior: zooming in on a specific event, scrolling back in time, or
+pausing live updates to inspect a captured interval.
 
 \subsection{Visualization}
 
-The dashboard includes:
+The dashboard is shown in \autoref{fig:hmi-screenshot} and is organized into three rows.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{diagrams/hmi-screenshot}
+    \caption{Grafana Dashboard}
+    \label{fig:hmi-screenshot}
+\end{figure}
+
+The top row shows the high-level motion state alongside the two interactive control panels
+described in \autoref{sec:dashboard-interaction}: a time-series chart of target linear and angular
+velocity (\texttt{v} and \texttt{omega} from the \texttt{motion\_intent} measurement), an
+indicator for the active control mode (Motion or PWM Override), and the two form-based input
+panels.
+
+The middle and lower rows contain five read-only monitoring plots, all sourcing from the
+\texttt{wheel\_state} measurement tagged by \texttt{wheel\_side}:
 
 \begin{itemize}
-    \item Time-series plots of motor speeds
-    \item Status indicators
+    \item \textbf{Rotation speed} --- actual and target speed (deg/s) for each wheel side;
+    target speed is drawn as a dashed line to keep it visually distinct from the measured value
+    \item \textbf{Rotation speed error} --- difference between target and actual speed, useful for
+    assessing P-controller tracking performance
+    \item \textbf{PWM} --- duty cycle (0.0 = full reverse, 1.0 = full forward) per wheel
+    \item \textbf{Motor temperature} --- temperature in \textdegree{}C per wheel, with a threshold
+    marker at 80\textdegree{}C to indicate thermal stress
+    \item \textbf{Wheel position} --- accumulated angular position (0--360\textdegree{}) per wheel
 \end{itemize}
-
-This allows users to monitor system behavior effectively.
 
 \subsection{Interaction}
+\label{sec:dashboard-interaction}
 
-User interaction is implemented indirectly:
+User interaction is implemented via the Volkov Labs Business Forms plugin, which renders slider
+controls and submits their values as HTTP POST requests directly to the Python backend. Grafana
+never communicates with the PLC.
+
+Two independent control panels are provided, each corresponding to one of the two backend API
+endpoints (see \autoref{sec:backend-architecture-text}):
 
 \begin{itemize}
-    \item Inputs in Grafana are sent to the Python backend
-    \item Python processes these inputs
-    \item The PLC is updated accordingly
+    \item \textbf{Motion control} --- sliders for linear velocity $v$
+    ($-1$ to $1$\,m/s) and angular velocity $\omega$ ($-10$ to $10$\,\textdegree{}/s), submitted
+    to \texttt{/command/motion}
+    \item \textbf{Override PWM} --- independent left and right PWM sliders (0 to 1), submitted to
+    \texttt{/command/pwm\_override}
 \end{itemize}
 
-This ensures that Grafana does not directly access the PLC.
+The active control mode is reflected in the \emph{Control mode} gauge, which reads
+\texttt{pwm\_override\_enable} from the stored telemetry and displays either ``Motion'' or ``PWM''.
 
 \section{Deployment}
 
