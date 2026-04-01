@@ -254,15 +254,16 @@ The internal structure of the Python backend is illustrated in \autoref{fig:back
     \label{fig:backend-architecture}
 \end{figure}
 
-The backend is organized into four layers. The \textbf{API layer} exposes an HTTP interface that
-Grafana uses to submit commands. The \textbf{domain layer} contains the business logic, including
-the kinematic calculations that convert linear and angular velocity into individual wheel speed
-setpoints. The \textbf{infrastructure layer} holds the two outward-facing adapters: the OPC UA
-client, which connects to the PLC, subscribes to value-change notifications on all leaf nodes for
-continuous monitoring, and polls periodically to capture snapshots; and the InfluxDB client, which
-persists incoming process data and command records. The \textbf{application layer} ties these
-together, routing incoming commands from the API through the domain logic and out to both
-infrastructure adapters.
+The backend is organized into four layers: the \textbf{API layer} exposes HTTP endpoints for
+Grafana commands, the \textbf{domain layer} contains business logic and kinematic conversion, the
+\textbf{infrastructure layer} provides OPC UA and InfluxDB adapters, and the
+\textbf{application layer} routes commands and data between them. In the OPC UA adapter,
+subscriptions are the primary path for low-latency updates without unnecessary reads, while slower
+polling (about 15--30\,s) is used as a practical workaround to keep Grafana fed during quiet
+periods; in real systems, the same mechanism can also serve periodic snapshot requirements. In the
+database path, the backend also persists \texttt{motion\_intent} (which does not exist on the PLC)
+and periodically rewrites the latest value as another explicit workaround to avoid empty or
+discontinuous Grafana panels after restarts or long inactive phases.
 
 \section{Data Storage}
 

@@ -1,0 +1,168 @@
+<mxfile host="localhost">
+  <diagram name="Backend Architecture" id="backend-arch-1">
+    <mxGraphModel dx="1640" dy="1014" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1800" pageHeight="1200" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="backend_box" parent="1" style="rounded=1;whiteSpace=wrap;html=1;strokeWidth=2;fillColor=none;verticalAlign=top;fontSize=15;" value="Python Backend (FastAPI)" vertex="1">
+          <mxGeometry height="730" width="1060" x="350" y="250" as="geometry" />
+        </mxCell>
+        <mxCell id="ext_grafana" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=15;" value="Grafana + Browser" vertex="1">
+          <mxGeometry height="70" width="180" x="85" y="190" as="geometry" />
+        </mxCell>
+        <mxCell id="ext_plc" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=15;" value="PLC OPC UA Server&lt;div&gt;(DB_Robot.MotorControls)&lt;/div&gt;" vertex="1">
+          <mxGeometry height="90" width="230" x="60" y="630" as="geometry" />
+        </mxCell>
+        <mxCell id="ext_influx" parent="1" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=15;" value="InfluxDB" vertex="1">
+          <mxGeometry height="110" width="170" x="90" y="390" as="geometry" />
+        </mxCell>
+        <mxCell id="e1" edge="1" parent="1" source="ext_grafana" style="endArrow=block;edgeStyle=orthogonalEdgeStyle;fontSize=15;" target="api_box" value="HTTP commands">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e11" edge="1" parent="1" source="ext_grafana" style="endArrow=block;edgeStyle=orthogonalEdgeStyle;fontSize=15;dashed=1;" target="ext_influx" value="query for dashboards">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="pi2GSARdydgpF-IuTX5N-27" connectable="0" parent="1" style="group;fontSize=15;" value="" vertex="1">
+          <mxGeometry height="680" width="970" x="395" y="280" as="geometry" />
+        </mxCell>
+        <mxCell id="infra_box" parent="pi2GSARdydgpF-IuTX5N-27" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=15;verticalAlign=top;" value="Infrastructure Layer" vertex="1">
+          <mxGeometry height="390" width="910" x="30" y="290" as="geometry" />
+        </mxCell>
+        <mxCell id="pi2GSARdydgpF-IuTX5N-21" connectable="0" parent="pi2GSARdydgpF-IuTX5N-27" style="group;fontSize=15;" value="" vertex="1">
+          <mxGeometry height="220" width="970" as="geometry" />
+        </mxCell>
+        <mxCell id="pi2GSARdydgpF-IuTX5N-9" connectable="0" parent="pi2GSARdydgpF-IuTX5N-21" style="group;fontSize=15;" value="" vertex="1">
+          <mxGeometry height="220" width="260" x="710" as="geometry" />
+        </mxCell>
+        <mxCell id="app_box" parent="pi2GSARdydgpF-IuTX5N-9" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;fontSize=15;verticalAlign=top;" value="Application Layer" vertex="1">
+          <mxGeometry height="220" width="260" x="-0.7407407407406481" as="geometry" />
+        </mxCell>
+        <mxCell id="queue_opcua" parent="pi2GSARdydgpF-IuTX5N-9" style="shape=parallelogram;perimeter=parallelogramPerimeter;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=15;" value="Queue: to_opc_ua" vertex="1">
+          <mxGeometry height="70" width="220" x="19.259259259259352" y="40" as="geometry" />
+        </mxCell>
+        <mxCell id="queue_db" parent="pi2GSARdydgpF-IuTX5N-9" style="shape=parallelogram;perimeter=parallelogramPerimeter;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=15;" value="Queue: to_db" vertex="1">
+          <mxGeometry height="70" width="220" x="19.259259259259352" y="130" as="geometry" />
+        </mxCell>
+        <mxCell id="pi2GSARdydgpF-IuTX5N-8" connectable="0" parent="pi2GSARdydgpF-IuTX5N-21" style="group;fontSize=15;" value="" vertex="1">
+          <mxGeometry height="110" width="300" x="335" y="55" as="geometry" />
+        </mxCell>
+        <mxCell id="domain_box" parent="pi2GSARdydgpF-IuTX5N-8" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=15;verticalAlign=top;" value="Domain Layer" vertex="1">
+          <mxGeometry height="110" width="300" as="geometry" />
+        </mxCell>
+        <mxCell id="kinematics" parent="pi2GSARdydgpF-IuTX5N-8" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#82b366;fontSize=15;" value="calculate_wheel_speeds(v, omega)" vertex="1">
+          <mxGeometry height="41.36363636363637" width="250" x="25" y="48.635454545454536" as="geometry" />
+        </mxCell>
+        <mxCell id="pi2GSARdydgpF-IuTX5N-7" connectable="0" parent="pi2GSARdydgpF-IuTX5N-21" style="group;fontSize=15;" value="" vertex="1">
+          <mxGeometry height="220" width="260" as="geometry" />
+        </mxCell>
+        <mxCell id="api_box" parent="pi2GSARdydgpF-IuTX5N-7" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=15;verticalAlign=top;" value="API Layer" vertex="1">
+          <mxGeometry height="220" width="260" as="geometry" />
+        </mxCell>
+        <mxCell id="api_motion" parent="pi2GSARdydgpF-IuTX5N-7" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#6c8ebf;fontSize=15;" value="POST /command/motion&lt;div&gt;MotionCommand&lt;/div&gt;" vertex="1">
+          <mxGeometry height="70" width="220" x="20" y="130" as="geometry" />
+        </mxCell>
+        <mxCell id="api_pwm" parent="pi2GSARdydgpF-IuTX5N-7" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#6c8ebf;fontSize=15;" value="POST /command/pwm_override&lt;div&gt;PwmOverrideCommand&lt;/div&gt;" vertex="1">
+          <mxGeometry height="70" width="220" x="20" y="40" as="geometry" />
+        </mxCell>
+        <mxCell id="e3" edge="1" parent="pi2GSARdydgpF-IuTX5N-21" source="kinematics" style="endArrow=block;edgeStyle=orthogonalEdgeStyle;fontSize=15;entryX=0;entryY=0.75;entryDx=0;entryDy=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;" target="queue_opcua" value="MotorCmd">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e2" edge="1" parent="pi2GSARdydgpF-IuTX5N-21" source="api_motion" style="endArrow=block;edgeStyle=orthogonalEdgeStyle;fontSize=15;entryX=0;entryY=0.5;entryDx=0;entryDy=0;exitX=1;exitY=0.25;exitDx=0;exitDy=0;" target="kinematics" value="v, omega">
+          <mxGeometry relative="1" x="0.0034" as="geometry">
+            <mxPoint as="offset" />
+            <mxPoint x="240" y="85" as="sourcePoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e4" edge="1" parent="pi2GSARdydgpF-IuTX5N-21" source="api_motion" style="endArrow=block;edgeStyle=orthogonalEdgeStyle;fontSize=15;exitX=1;exitY=0.75;exitDx=0;exitDy=0;entryX=0;entryY=0;entryDx=0;entryDy=0;" target="queue_db" value="MotionIntentCmd">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="660" y="183" />
+              <mxPoint x="660" y="142" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e5" edge="1" parent="pi2GSARdydgpF-IuTX5N-21" source="api_pwm" style="endArrow=block;edgeStyle=orthogonalEdgeStyle;fontSize=15;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0;entryDx=0;entryDy=0;" target="queue_opcua" value="MotorPwmOverrideCmd">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="280" y="75" />
+              <mxPoint x="280" y="30" />
+              <mxPoint x="680" y="30" />
+              <mxPoint x="680" y="52" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e9" edge="1" parent="pi2GSARdydgpF-IuTX5N-27" source="opcua_worker" style="endArrow=block;edgeStyle=orthogonalEdgeStyle;fontSize=15;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.75;entryDx=0;entryDy=0;" target="queue_db" value="SaveNodeDataCmd">
+          <mxGeometry relative="1" x="0.0014" as="geometry">
+            <mxPoint as="offset" />
+            <Array as="points">
+              <mxPoint x="485" y="395" />
+              <mxPoint x="485" y="218" />
+              <mxPoint x="675" y="218" />
+              <mxPoint x="675" y="181" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="opcua_nodes" parent="pi2GSARdydgpF-IuTX5N-27" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#b85450;fontSize=15;dashed=1;dashPattern=8 8;" value="&lt;div&gt;OPC UA node configuration (node_config.py)&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div style=&quot;text-align: left;&quot;&gt;&lt;span style=&quot;background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&quot;&gt;- OPC UA node names&lt;/span&gt;&lt;/div&gt;&lt;div style=&quot;text-align: left;&quot;&gt;- typed mapping to DB_Robot nodes&lt;/div&gt;&lt;div style=&quot;text-align: left;&quot;&gt;- metadata for nodes&lt;/div&gt;" vertex="1">
+          <mxGeometry height="140" width="400" x="65" y="505" as="geometry" />
+        </mxCell>
+        <mxCell id="db_worker" parent="pi2GSARdydgpF-IuTX5N-27" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#b85450;fontSize=15;" value="&lt;div style=&quot;text-align: left;&quot;&gt;&lt;span style=&quot;background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&quot;&gt;InfluxDB Worker (&lt;/span&gt;&lt;span style=&quot;background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&quot;&gt;infrastructure/db/client.py)&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div style=&quot;text-align: left;&quot;&gt;- establish connection&lt;/div&gt;&lt;div style=&quot;text-align: left;&quot;&gt;- handle MotionIntentCmd, SaveNodeDataCmd&lt;/div&gt;&lt;div style=&quot;text-align: left;&quot;&gt;- periodically resend last motion intent&lt;/div&gt;" vertex="1">
+          <mxGeometry height="140" width="400" x="505" y="325" as="geometry" />
+        </mxCell>
+        <mxCell id="db_ops" parent="pi2GSARdydgpF-IuTX5N-27" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#b85450;fontSize=15;dashed=1;dashPattern=8 8;" value="&lt;div style=&quot;text-align: left;&quot;&gt;InfluxDB helpers (command_handlers.py + queries.py)&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div style=&quot;text-align: left;&quot;&gt;- mappings from internal to InfluxDB records&lt;/div&gt;&lt;div style=&quot;text-align: left;&quot;&gt;- write and read to and from the database&lt;/div&gt;" vertex="1">
+          <mxGeometry height="140" width="400" x="505" y="505" as="geometry" />
+        </mxCell>
+        <mxCell id="opcua_worker" parent="pi2GSARdydgpF-IuTX5N-27" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#b85450;fontSize=15;" value="&lt;div style=&quot;text-align: left;&quot;&gt;&lt;span style=&quot;background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&quot;&gt;OPC UA Worker (infrastructure/opcua/client.py)&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;&lt;div style=&quot;text-align: left;&quot;&gt;&lt;span style=&quot;background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&quot;&gt;- establish connection&lt;/span&gt;&lt;/div&gt;&lt;div style=&quot;text-align: left;&quot;&gt;&lt;span style=&quot;background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&quot;&gt;- subscribe to OPC UA nodes&lt;/span&gt;&lt;/div&gt;&lt;/div&gt;&lt;div style=&quot;text-align: left;&quot;&gt;- poll OPC UA nodes&lt;/div&gt;&lt;div style=&quot;text-align: left;&quot;&gt;- handle MotorCmd, MotorPwmOverrideCmd&lt;/div&gt;" vertex="1">
+          <mxGeometry height="140" width="400" x="65" y="325" as="geometry" />
+        </mxCell>
+        <mxCell id="e7" edge="1" parent="pi2GSARdydgpF-IuTX5N-27" source="queue_db" style="endArrow=block;edgeStyle=orthogonalEdgeStyle;fontSize=15;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="db_worker" value="&#xa;">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="965" y="165" />
+              <mxPoint x="965" y="480" />
+              <mxPoint x="485" y="480" />
+              <mxPoint x="485" y="395" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="pi2GSARdydgpF-IuTX5N-16" connectable="0" parent="e7" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=15;" value="&lt;div&gt;&lt;br&gt;&lt;/div&gt;" vertex="1">
+          <mxGeometry relative="1" x="0.027" y="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="pi2GSARdydgpF-IuTX5N-17" connectable="0" parent="e7" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=15;" value="consume" vertex="1">
+          <mxGeometry relative="1" x="0.0155" y="-2" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="pi2GSARdydgpF-IuTX5N-18" edge="1" parent="1" source="queue_opcua" style="endArrow=block;edgeStyle=orthogonalEdgeStyle;fontSize=15;exitX=1;exitY=0.5;exitDx=0;exitDy=0;" value="&#xa;">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1390" y="355" />
+              <mxPoint x="1390" y="770" />
+              <mxPoint x="440" y="770" />
+              <mxPoint x="440" y="710" />
+            </Array>
+            <mxPoint x="1457" y="540" as="sourcePoint" />
+            <mxPoint x="460" y="710" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="pi2GSARdydgpF-IuTX5N-19" connectable="0" parent="pi2GSARdydgpF-IuTX5N-18" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=15;" value="&lt;div&gt;&lt;br&gt;&lt;/div&gt;" vertex="1">
+          <mxGeometry relative="1" x="0.027" y="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="pi2GSARdydgpF-IuTX5N-20" connectable="0" parent="pi2GSARdydgpF-IuTX5N-18" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=15;" value="consume" vertex="1">
+          <mxGeometry relative="1" x="0.0155" y="-2" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e8" edge="1" parent="1" source="opcua_worker" style="endArrow=block;startArrow=block;startFill=1;edgeStyle=orthogonalEdgeStyle;fontSize=15;" target="ext_plc" value="OPC UA read/write">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e10" edge="1" parent="1" source="db_worker" style="endArrow=block;startArrow=none;startFill=0;edgeStyle=orthogonalEdgeStyle;fontSize=15;exitX=1;exitY=0.5;exitDx=0;exitDy=0;" target="ext_influx" value="write/query">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
