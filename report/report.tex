@@ -467,27 +467,44 @@ docker-compose up -d
 
 \section{Results and Discussion}
 
-The system successfully demonstrates a working PLC-connected dashboard:
+The implemented system behaved largely as expected during testing and demonstrated a stable
+end-to-end PLC-connected dashboard workflow in the hybrid VM + Host setup.
 
 \begin{itemize}
-    \item Reliable data exchange between components
-    \item Clear separation of responsibilities
-    \item Functional visualization and control
+    \item Reliable data flow from PLCSIM (VM) through OPC UA and the Python backend to InfluxDB and Grafana (Host)
+    \item Functional bidirectional operation: dashboard commands reached the backend and were reflected in PLC behavior
+    \item Clear component boundaries in practice: PLC simulation, backend logic, storage, and HMI could be validated independently
+    \item Reproducible runtime setup via versioned Compose, Dockerfiles, and provisioning scripts
 \end{itemize}
 
-Limitations include the use of simulation instead of real hardware and potential latency introduced
-by multiple system layers.
+From an engineering perspective, the architecture proved practical for iterative development and
+debugging. In particular, the hybrid setup reflected a realistic separation between engineering
+tooling and application services while still remaining manageable for project-scale operation.
+
+The current system should be considered a functional prototype, not a production-ready solution.
+Main limitations are the use of simulation instead of real hardware, latency introduced by the
+multi-layer communication path, and the absence of production hardening measures (e.g.
+security controls, high-availability strategy, and long-duration robustness validation).
 
 \section{Conclusion}
 
-The project achieves its goal of building a modular PLC-connected dashboard system. The architecture
-allows flexible interaction between industrial and modern software components.
+The project achieved its primary goal: implementing a modular PLC-connected dashboard system with
+working monitoring and control paths across all core components. The selected stack (PLC/OPC UA,
+Python backend, InfluxDB, and Grafana) provided a practical and understandable integration path
+for IIoT-oriented engineering tasks.
 
-Future improvements could include integration of real hardware, more advanced simulations, or
-additional control algorithms.
+At the same time, the implementation remains prototype-level. It validates the architecture and
+workflow, but it is not yet sufficient for deployment in an industrial production environment.
 
-\appendix
-\section{Appendix}
-Additional materials such as screenshots, variable lists, or configuration files can be included here.
+The most relevant next steps are:
+
+\begin{itemize}
+    \item validation with real PLC-connected hardware and representative network conditions
+    \item extension of control logic and safety behavior beyond the current baseline controller
+    \item optimization of redundant database writes and periodic snapshot reads that are currently
+    used as practical workarounds to keep the dashboard history continuous
+    \item production-oriented hardening (authentication/authorization, fault tolerance, monitoring,
+    and operational test coverage)
+\end{itemize}
 
 \end{document}
