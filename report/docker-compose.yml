@@ -3,7 +3,7 @@ services:
     image: rlespinasse/drawio-export
     volumes:
       - .:/data
-    command: --format png --output /data/.export /data/diagrams
+    command: --format png --output /data/.export /data/resources
 
   latex:
     image: texlive/texlive
