@@ -379,62 +379,91 @@ The active control mode is reflected in the \emph{Control mode} gauge, which rea
 
 \section{Deployment}
 
-\subsection{Docker Architecture}
+\subsection{Deployment Goal and IaC Approach}
 
-The following components are containerized:
+A core project goal was to implement the runtime environment as far as possible in an
+\textit{Infrastructure as Code} style. This was achieved by defining the complete software stack in
+versioned configuration files: service topology in \texttt{docker-compose.yml}, container build
+steps in dedicated Dockerfiles, Grafana provisioning files, and database initialization scripts.
+As a result, the runtime can be recreated consistently on another machine without manual UI-based
+setup.
 
-\begin{itemize}
-    \item Python backend
-    \item InfluxDB
-    \item Grafana
-\end{itemize}
+\subsection{Containerized Runtime Architecture}
 
-This simplifies deployment and ensures consistent environments.
-
-\subsection{Setup Strategy}
-
-Docker allows:
+The runtime stack consists of three Docker services:
 
 \begin{itemize}
-    \item Easy setup
-    \item Reproducibility
-    \item Isolation of components
+    \item \textbf{backend} --- built from \texttt{backend/Dockerfile} (Python 3.10 slim), exposing
+    port 5000 and running the FastAPI service via Uvicorn
+    \item \textbf{database} --- based on \texttt{influxdb:2.8.0}, exposing port 8086 and initialized
+    through environment-driven setup plus init scripts mounted from \texttt{db/influxdb-init}
+    \item \textbf{hmi} --- built from \texttt{hmi/Dockerfile} (Grafana base image), exposing port
+    3000 and preinstalling required Grafana plugins
 \end{itemize}
 
-All services can be started using a single configuration.
+Service startup ordering is encoded in Compose as well: backend and HMI both depend on a healthy
+InfluxDB instance, and Grafana datasource configuration is generated automatically from environment
+variables at container startup.
 
-\subsection{VM and Host Setup}
+\subsection{Tested Deployment Strategies}
+\label{sec:deployment-strategies}
 
-The PLC environment (TIA Portal and PLCSIM) runs inside a virtual machine, while Docker containers
-run on the host system.
-
-This setup separates engineering tools from runtime services.
-
-\subsection{Alternative Deployment Strategies}
-
-Different deployment strategies were evaluated:
+The project was tested with two deployment variants:
 
 \begin{itemize}
-    \item Running all components on the host system
-    \item Running all components inside a virtual machine
+    \item \textbf{Hybrid setup} --- PLC simulation in a VM (TIA Portal and PLCSIM), while backend,
+    InfluxDB, and Grafana run as Docker containers on the Windows host; communication is enabled by
+    VM IP mapping
+    \item \textbf{All-in-VM setup} --- PLC simulation and Docker services running in the same VM
 \end{itemize}
 
-Each approach has trade-offs regarding networking, performance, and complexity. The chosen hybrid
-setup provides a good balance between usability and stability.
+From an operational perspective, the hybrid setup is closer to realistic deployments, where PLC/
+engineering tooling and application services are typically not co-located inside one VM. The
+all-in-VM variant was nevertheless useful in this project because the available TIA Portal license
+was bound to the VM environment and because a single-machine VM setup simplified end-to-end
+debugging.
 
 \section{Setup Guide}
 
-To run the system:
+The setup supports both deployment variants introduced in
+\autoref{sec:deployment-strategies} (single-machine and VM + Host). A concise run sequence
+is given below. Both variants were functional in testing. For robust and reproducible operation,
+the default recommendation is to run all components on the same machine (physical or virtual),
+because this avoids additional network bridging and port-forwarding dependencies. In
+single-machine mode, execute all steps on that same machine. In hybrid mode, follow the location
+notes in each step.
 
 \begin{enumerate}
-    \item Open the TIA Portal project
-    \item Start PLCSIM and load the PLC program
-    \item Start the Docker containers
-    \item Run the Python backend
-    \item Open Grafana in a web browser
+    \item Create a PLCSIM Advanced instance as shown in \autoref{fig:plcsim-screenshot}
+    (Hybrid: in the VM)
+    \item Load the PLC project to PLCSIM and start the PLC instance
+    (Hybrid: in the VM)
+    \item Clone and enter the project repository:
+    (Hybrid: on the host)
+\begin{verbatim}
+git clone https://github.com/bachmak/robbi-hmi.git
+cd robbi-hmi
+\end{verbatim}
+    Alternatively, the attached project archive can be used instead of cloning the repository.
+    \item \textbf{Hybrid mode only:} copy the script content from
+    \texttt{setup-vm.ps1} (repository root), run it in VM PowerShell as
+    Administrator, then copy the printed OPC UA URL and replace
+    \texttt{OPC\_UA\_URL\_VM} in the project \texttt{.env} file
+    \item Start the stack:
+    (Hybrid: on the host)
+\begin{verbatim}
+docker-compose up -d
+\end{verbatim}
+    \item Open Grafana in a browser at \texttt{http://localhost:3000}
+    (Hybrid: from the host browser)
 \end{enumerate}
 
-After these steps, the system should be fully operational.
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\textwidth,height=0.5\textheight,keepaspectratio]{diagrams/plcsim-screenshot}
+    \caption{PLCSIM Advanced Instance Configuration}
+    \label{fig:plcsim-screenshot}
+\end{figure}
 
 \section{Results and Discussion}
 
