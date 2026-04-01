@@ -90,6 +90,7 @@ state to be restored or replicated at any point in time.
 
 The system consists of the following main components:
 
+% TODO: add references to the corresponding sections describing each component in more detail
 \begin{itemize}
     \item PLC simulated using TIA Portal and PLCSIM
     \item Python backend acting as communication layer
@@ -201,39 +202,67 @@ immediately. Higher-level kinematics are handled outside the PLC.
 
 \section{Communication Interface}
 
-\subsection{OPC UA Setup}
+\subsection{Python Backend}
 
-Communication between the PLC and Python is implemented using OPC UA. The PLC exposes its variables
-via an OPC UA server, which allows external clients to read and write data.
+The Python backend is the central communication layer of the system, connecting to the PLC via
+OPC UA, translating user commands from the dashboard into PLC setpoints, storing process data in
+InfluxDB, and performing kinematic calculations to convert high-level motion parameters (linear and
+angular velocity) into individual wheel speed setpoints.
 
-OPC UA was chosen due to its platform independence, standardization, and compatibility with
-industrial systems.
+\subsection{Architectural Decisions}
 
-\subsection{Python Middleware}
+\subsubsection{Choice of Python over Node-RED}
 
-The Python backend is the central communication layer of the system. Its responsibilities include:
-
-\begin{itemize}
-    \item Connecting to the PLC via OPC UA
-    \item Reading process data
-    \item Writing control values back to the PLC
-    \item Processing user input from the dashboard
-    \item Forwarding data to the database
-\end{itemize}
-
-Additionally, Python computes motor speed values based on higher-level inputs, such as desired motion parameters.
-
-\subsection{Design Decisions}
-
-A key design decision was to avoid Node-RED and instead implement the logic in Python. This provides:
+The project brief suggested Node-RED as one possible integration tool. Python was chosen instead
+for the following reasons:
 
 \begin{itemize}
-    \item Greater flexibility
-    \item Better control over logic and data processing
-    \item Easier extensibility
+    \item \textbf{Execution flow control} --- Python allows fine-grained control over asynchronous
+    tasks, error handling, and retry logic. Node-RED's visual wiring model makes such orchestration
+    harder to reason about and maintain.
+    \item \textbf{Version control} --- plain Python source files integrate naturally with Git,
+    making every change fully traceable and reviewable. Node-RED flows are stored as JSON, which is
+    difficult to review meaningfully in a diff.
+    \item \textbf{Personal preference} --- from a personal perspective, Python feels more
+    professional and appropriate for a backend service than a visual flow editor primarily aimed
+    at rapid prototyping.
 \end{itemize}
 
-The architecture focuses on clear separation of concerns and minimal direct dependencies between components.
+\subsubsection{OPC UA over a S7-specific library}
+
+An alternative would have been to use a Siemens-specific library (e.g.\ snap7 via python-snap7)
+to communicate directly with the S7 PLC. OPC UA was chosen instead for the following reasons:
+
+\begin{itemize}
+    \item \textbf{Manufacturer independence} --- any device exposing an OPC UA server can be
+    integrated without modifying the backend, decoupling it from Siemens-specific protocol details.
+    \item \textbf{Standardization} --- OPC UA is an open, platform-independent IEC standard widely
+    adopted in industrial automation.
+    \item \textbf{Explicit access control} --- the PLC declares which nodes are readable and
+    writable in its address space; the backend respects those declarations rather than relying on
+    undocumented memory mappings.
+\end{itemize}
+
+\subsection{Backend Architecture}
+
+The internal structure of the Python backend is illustrated in \autoref{fig:backend-architecture}.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{.export/backend-architecture-Backend-Architecture}
+    \caption{Python Backend Architecture}
+    \label{fig:backend-architecture}
+\end{figure}
+
+The backend is organized into four layers. The \textbf{API layer} exposes an HTTP interface that
+Grafana uses to submit commands. The \textbf{domain layer} contains the business logic, including
+the kinematic calculations that convert linear and angular velocity into individual wheel speed
+setpoints. The \textbf{infrastructure layer} holds the two outward-facing adapters: the OPC UA
+client, which connects to the PLC, subscribes to value-change notifications on all leaf nodes for
+continuous monitoring, and polls periodically to capture snapshots; and the InfluxDB client, which
+persists incoming process data and command records. The \textbf{application layer} ties these
+together, routing incoming commands from the API through the domain logic and out to both
+infrastructure adapters.
 
 \section{Data Storage}
 
